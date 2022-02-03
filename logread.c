@@ -9,6 +9,9 @@
 
 #include "data.h"
 
+salt[] = "64IoyuFtDoP6nxwgs4bp";
+PUID[] = "GtFREE5mdF7I3NKQRBbQ";
+
 int verbose = 0;
 
 void print_records(Record *records, unsigned int num_records) {

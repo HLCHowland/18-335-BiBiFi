@@ -1,3 +1,6 @@
+prepSrcCrypto: 
+	./prepSrcCrypto.sh
+
 all: logappend logread
 
 CFLAGS=-g 

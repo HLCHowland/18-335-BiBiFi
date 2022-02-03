@@ -9,6 +9,9 @@
 
 #include "data.h"
 
+salt[] = "64IoyuFtDoP6nxwgs4bp";
+PUID[] = "GtFREE5mdF7I3NKQRBbQ";
+
 typedef struct _CmdLineResult {
   //TODO probably put more things here
   int     good;
