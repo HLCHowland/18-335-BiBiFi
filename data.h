@@ -28,4 +28,8 @@ void dump_record(Record *R);
 
 int read_records_from_path(char *path, unsigned char *key, Record **, unsigned int *);
 
+// Our helper functions
+void serialize_int(char *buf, int a);
+int deserialize_int(unsigned char *buf);
+
 #endif

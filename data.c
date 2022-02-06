@@ -73,3 +73,14 @@ int read_records_from_path(char *path, unsigned char *key, Record **outbuf, unsi
   
   return 0;
 }
+
+void serialize_int(char *buf, int a) {
+    buf[0] = 0xff & (a >> 24);
+    buf[1] = 0xff & (a >> 16);
+    buf[2] = 0xff & (a >> 8);
+    buf[3] = 0xff & a;
+}
+
+int deserialize_int(unsigned char *buf) {
+    return ((unsigned char)buf[0]<<24) | ((unsigned char)buf[1]<<16) | ((unsigned char)buf[2]<<8) | (unsigned char)buf[3];
+}
