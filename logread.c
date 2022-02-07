@@ -10,7 +10,7 @@
 #include "data.h"
 
 char salt[] = "XXXXXXXXXXXXXXXXXXXX";
-char CTID[] = "bfWNoSckDdADL3xFIhUz";
+char CTUID[] = "XXXXXXXXXXXXXXXXXXXX";
 
 int verbose = 0;
 
