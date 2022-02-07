@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "data.h"
 
@@ -84,3 +85,32 @@ void serialize_int(char *buf, int a) {
 int deserialize_int(unsigned char *buf) {
     return ((unsigned char)buf[0]<<24) | ((unsigned char)buf[1]<<16) | ((unsigned char)buf[2]<<8) | (unsigned char)buf[3];
 }
+
+// log format: entry_len(int) + ts(int) + name(str) + E/G(char) + A/L(char) + roomID(int)
+// Total length = 4+4+name_len+1+1+4 = 14+name_len
+int logentry_to_buf(LogEntry L, char **buf) {
+    int entry_len = 10+L.name_len;
+    *buf = calloc(entry_len+4, sizeof(char));
+    serialize_int(*buf, entry_len); // entry_len
+    serialize_int(*buf+4, L.ts); // timestamp
+    memcpy(*buf+8, L.name, L.name_len); // name
+    (*buf)[8+L.name_len] = L.is_employee ? 'E' : 'G'; // Employee/Guest
+    (*buf)[9+L.name_len] = L.is_arrival ? 'A' : 'L'; // Arrive/Leave
+    serialize_int(*buf+L.name_len+10, L.roomID); // roomID
+    return 14 + L.name_len;
+}
+
+// Takes in a buffer pointing to the first character AFTER entry_len
+// Construct and returns LogEntry in L
+void buf_to_logentry(LogEntry * L, char *buf, int entry_len) {
+    char * name;
+    L->ts = deserialize_int(buf);
+    name = calloc(entry_len-10, sizeof(char));
+    memcpy(name, buf+4, entry_len-10);
+    L->name = name;
+    L->name_len = entry_len-10;
+    L->is_employee = (buf[entry_len-6] == 'E');
+    L->is_arrival = (buf[entry_len-5] == 'A');
+    L->roomID = deserialize_int(buf+entry_len-4);
+}
+

@@ -30,15 +30,6 @@ typedef struct _CmdLineResult {
   int     logpath_len;
 } CmdLineResult;
 
-// Only included useful information for each log entry
-typedef struct _LogEntry {
-  int     ts;
-  char*   name;
-  int     name_len;
-  bool    is_employee;
-  bool    is_arrival;
-  int     roomID;
-} LogEntry;
 
 int do_batch(char *);
 
@@ -187,21 +178,6 @@ int do_batch(char *filepath) {
   return 0;
 }
 
-// log format: entry_len(int) + ts(int) + name(str) + E/G(char) + A/L(char) + roomID(int)
-// Total length = 4+4+name_len+1+1+4 = 14+name_len
-int cmdline_to_buf(CmdLineResult R, char **buf) {
-    int entry_len = 10+R.name_len;
-    *buf = calloc(entry_len+4, sizeof(char));
-    serialize_int(*buf, entry_len); // entry_len
-    serialize_int(*buf+4, R.ts); // timestamp
-    memcpy(*buf+8, R.name, R.name_len); // name
-    (*buf)[8+R.name_len] = R.is_employee ? 'E' : 'G'; // Employee/Guest
-    (*buf)[9+R.name_len] = R.is_arrival ? 'A' : 'L'; // Arrive/Leave
-    serialize_int(*buf+R.name_len+10, R.roomID); // roomID
-    return 14 + R.name_len;
-
-}
-
 void print_cmdline(CmdLineResult R){
     printf("ts: %d\n", R.ts);
     printf("token: %s\n", R.token);
@@ -258,8 +234,14 @@ int main(int argc, char *argv[]) {
         // Write new command
         char *buf;
         int buf_len;
-        
-        buf_len = cmdline_to_buf(R, &buf);
+        LogEntry L;
+        L.ts = R.ts;
+        L.name = R.name;
+        L.name_len = R.name_len;
+        L.is_employee = R.is_employee;
+        L.is_arrival = R.is_arrival;
+        L.roomID = R.roomID;
+        buf_len = logentry_to_buf(L, &buf);
         //printf("Printing buf, length of %d:\n", buf_len);
         //for (i=0; i<buf_len; i++) {
         //    printf("%d ",buf[i]);
@@ -314,15 +296,7 @@ int main(int argc, char *argv[]) {
         num_read = fread(buf_r, 1, entry_len, log_fp);
         assert(num_read==entry_len && "num_read not equal to entry_len");
         LogEntry L;
-        L.ts = deserialize_int(buf_r);
-        char * name;
-        name = calloc(entry_len-10, sizeof(char));
-        memcpy(name, buf_r+4, entry_len-10);
-        L.name = name;
-        L.name_len = entry_len-10;
-        L.is_employee = (buf_r[entry_len-6] == 'E');
-        L.is_arrival = (buf_r[entry_len-5] == 'A');
-        L.roomID = deserialize_int(buf_r+entry_len-4);
+        buf_to_logentry(&L, buf_r, entry_len);
         //print_logentry(L);
         // Check match and update person's location
         if ((strcmp(R.name, L.name) == 0) && (R.is_employee == L.is_employee)) {
@@ -383,7 +357,14 @@ int main(int argc, char *argv[]) {
     log_fp = fopen(R.logpath, "a");
     char *buf;
     int buf_len;
-    buf_len = cmdline_to_buf(R, &buf);
+    LogEntry L;
+    L.ts = R.ts;
+    L.name = R.name;
+    L.name_len = R.name_len;
+    L.is_employee = R.is_employee;
+    L.is_arrival = R.is_arrival;
+    L.roomID = R.roomID;
+    buf_len = logentry_to_buf(L, &buf);
     fwrite(buf, 1, buf_len, log_fp);
     fclose(log_fp);
     free(buf);
