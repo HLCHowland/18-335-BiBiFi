@@ -9,8 +9,8 @@
 
 #include "data.h"
 
-//salt[] = "3JkH3ocQ2L82UJHkDqeD";
-//PUID[] = "bfWNoSckDdADL3xFIhUz";
+char salt[] = "XXXXXXXXXXXXXXXXXXXX";
+char CTID[] = "bfWNoSckDdADL3xFIhUz";
 
 int verbose = 0;
 

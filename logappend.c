@@ -13,8 +13,8 @@
 
 #include "data.h"
 
-//salt[] = "3JkH3ocQ2L82UJHkDqeD";
-//PUID[] = "bfWNoSckDdADL3xFIhUz";
+char salt[] = "XXXXXXXXXXXXXXXXXXXX";
+char CTUID[] = "XXXXXXXXXXXXXXXXXXXX";
 
 typedef struct _CmdLineResult {
   // int     good; Not using good because we exit whenever input is erroneous
