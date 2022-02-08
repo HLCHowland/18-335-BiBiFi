@@ -13,3 +13,15 @@ name (str)
 E/G (char)
 A/L (char)
 roomID (int, -1 for gallery and >=0 for rooms)
+
+
+
+Issues To Fix:
+    logread.c:
+        Verify input log file exists. Currently if log file doesn't exist, program crashes.
+        Get rid of debugging printf statements since autolab likely requires identical stdout as expected.
+        Differentiate between employee and guest. Currently both -S and -R ignores whether given input is an employee or an guest.
+        Avoid using fixed sized arrays and MAX_NAME_LEN, because input names and number of rooms can be arbitrarily long.
+    logappend.c:
+        Implement batching.
+        

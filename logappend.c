@@ -149,6 +149,11 @@ CmdLineResult parse_cmdline(int argc, char *argv[], int is_batch) {
     memcpy(logpath, argv[optind], R.logpath_len);
     R.logpath = logpath;
   }
+  else if (batchfile==NULL) {
+    // printf("Input missing log file.\n");
+    printf("invalid\n");
+    exit(255);
+  }
   
   //TODO: implement batching
 
@@ -216,11 +221,11 @@ int main(int argc, char *argv[]) {
     // If log file doesn't exist, create a new file, write token, and write in CmdLineResult
     if( access( R.logpath, F_OK ) != 0 ){
         // Create new log
-        printf("Log file doesn't currently exists. Opening new log file.\n");
+        // printf("Log file doesn't currently exists. Opening new log file.\n");
         // Verify first entry is an arrival to the gallery
         if (R.is_arrival==false || R.roomID!=-1) {
             printf("invalid\n");
-            printf("invalid first entry.\n");
+            // printf("invalid first entry.\n");
             exit(255);
         }
         log_fp = fopen(R.logpath, "w+");
@@ -256,7 +261,7 @@ int main(int argc, char *argv[]) {
     // Second step: check if token matches the one in existing log
 
     // Open log read-only
-    printf("Opening existing logfile.\n");
+    // printf("Opening existing logfile.\n");
     log_fp = fopen(R.logpath, "r");
     char *buf_r;
     buf_r = malloc(4);
@@ -275,8 +280,7 @@ int main(int argc, char *argv[]) {
     assert(num_read==token_len && "num_read not equal to token_len");
     // Compare tokens
     if (strcmp(buf_r, R.token) != 0) {
-        printf("invalid\n");
-        printf("token mismatched. %s from input, %s expected from log.\n", R.token, buf_r);
+        printf("integrity violation\n");
         exit(255);
     }
 
@@ -324,31 +328,31 @@ int main(int argc, char *argv[]) {
 
     // Fourth step: check if command line input is valid given person's current location
     // Also check for timestamp validity
-    printf("%s's current location is: %d\n", R.name, current_location);
+    // printf("%s's current location is: %d\n", R.name, current_location);
     if (R.is_arrival) {
         if (R.roomID==-1 && current_location!=-2) {
             // Person already in gallery entering again
             printf("invalid\n");
-            printf("Person already in gallery.\n");
+            // printf("Person already in gallery.\n");
             exit(255);
         }
         if (R.roomID>=0 && current_location!=-1) {
             // Person not in gallery lobby entering room
             printf("invalid\n");
-            printf("Person not in gallery lobby.\n");
+            // printf("Person not in gallery lobby.\n");
             exit(255);
         }
     } else {
         if (R.roomID != current_location) {
             // Person leaving not current location
             printf("invalid\n");
-            printf("Person not leaving current location.\n");
+            // printf("Person not leaving current location.\n");
             exit(255);
         }
     }
     if (R.ts < last_ts) {
         printf("invalid\n");
-        printf("Timestamp lower than latest in log.\n");
+        // printf("Timestamp lower than latest in log.\n");
         exit(255);
     }
     fclose(log_fp);

@@ -144,7 +144,7 @@ void print_summary(struct Person *first, struct slisthead head) {
   int i;
   bool is_newroom = true;
   SLIST_FOREACH(first, &head, link){
-    printf("%s\n", first->name);
+    printf("%s,", first->name);
     is_newroom = true;
     for(i = 0;i < totalroom; i++){
       if(first->roomnow==roomlist[i]) is_newroom=false;
@@ -154,17 +154,19 @@ void print_summary(struct Person *first, struct slisthead head) {
       totalroom++;
     }
   }
+  
         
 
   int roomflag;        
-  for(i = 0;i < totalroom; i++)
+  for(i = 0;i < totalroom; i++) {
     roomflag = roomlist[i];
     printf("\n%i: ",roomflag);
       SLIST_FOREACH(first, &head, link){
         if(first->roomnow == roomflag){
                 printf(" %s",first->name);
         }
-      }            
+      }
+  }            
   return;
 }
 
@@ -247,6 +249,10 @@ int main(int argc, char *argv[]) {
     logpath = malloc(logpath_len);
     memcpy(logpath, argv[optind], logpath_len);
   }
+  else {
+    printf("Input missing log file.\n");
+    exit(255);
+  }
 
 //Double check commandline
   if(print_S && print_R){
@@ -273,8 +279,7 @@ int main(int argc, char *argv[]) {
     assert(num_read==token_len && "num_read not equal to token_len");
     // Compare tokens
     if (strcmp(buf_r, token) != 0) {
-        printf("invalid\n");
-        printf("token mismatched. %s from input, %s expected from log.\n", token, buf_r);
+        printf("integrity violation\n");
         exit(255);
     }
 
