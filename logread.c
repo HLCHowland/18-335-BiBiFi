@@ -247,7 +247,7 @@ int main(int argc, char *argv[]) {
         
         // Error out on duplicate flags
         if (EGchecked == true) {
-            printf("invalid input\n");
+            printf("invalid\n");
             exit(255);
         }
         EGchecked = true;
@@ -295,7 +295,7 @@ int main(int argc, char *argv[]) {
     int num_read;
     // Open log read-only
     if( access( logpath, F_OK ) != 0 ){
-      printf("invalid");
+      printf("invalid\n");
       exit(255);
     }
     // printf("Opening existing logfile.\n");
