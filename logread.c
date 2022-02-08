@@ -28,7 +28,6 @@ void print_records(Record *records, unsigned int num_records) {
 }
 
 struct Person {
-  //TODO put some other stuff here
   char name[MAX_NAME_LEN];
   bool is_employee;
   int roomnow;
@@ -39,23 +38,45 @@ struct Person {
 
 SLIST_HEAD(slisthead, Person);
 
+// Defining comparator function as per the requirement
+static int myCompare(const void* a, const void* b)
+{
+  
+    // setting up rules for comparison
+    return strcmp(*(char**)a, *(char**)b);
+}
+  
+// Function to sort the array
+void sort(char* arr[], int n)
+{
+    // calling qsort function to sort the array
+    // with the help of Comparator
+    qsort(arr, n, sizeof(char*), myCompare);
+}
 
 void leave_action(struct slisthead *head, char *name, bool is_employee, int roomPresent) {
-  //is this person already in the gallery? 
   struct Person *current; 
   SLIST_FOREACH(current, head, link)
   {
+    //Find the person
     if(strcmp(current->name,name)==0){
+      //Is the person guest type correct?
       if(current->is_employee==is_employee){
+        //Is the room number correct?
         if(current->roomnow!=roomPresent){
           printf("%s can't leave a room that haven't entered",current->name);
+          return;
+        }
+        //Is the person in gallery?
+        if(current->roomnow == -1){
+          current->roomnow=-2;
           return;
         }
         current->roomnow=-1;
         return;
       }
       else{
-        printf("guset type conflict %s",current->name);
+        printf("guset type conflict %s\n",current->name);
         return;
       }
     }
@@ -75,8 +96,17 @@ void arrive_action(struct slisthead *head, char *name, bool is_employee, int roo
             printf("Haven't leave room %i\n",current->roomnow);
             return;
           }
+          if(current->roomnow == -2){
+            if(roomPresent==-1){
+              current->roomnow=roomPresent;
+            }
+            else{
+              printf("%s haven't enter gallery yet. Can't visit a room \n",current->name);
+              return;
+            }
+          }
           if(roomPresent==-1){
-            printf("The person is already in the gallery %s\n",current->name);
+            printf("%s is already in the gallery \n",current->name);
             return;
           }
           current->roomnow=roomPresent;
@@ -144,7 +174,7 @@ void print_rooms(struct Person *first, struct slisthead head, char *name, bool i
             return;
           }
           else{
-            printf("Guest type doesn't match");
+            printf("Guest type doesn't match\n");
             exit(255);
           } 
         }
@@ -158,11 +188,13 @@ void print_summary(struct Person *first, struct slisthead head) {
   int roomlist[100];
   int i;
   bool is_newroom = true;
+  char * arr[100];
+  int k = 0;
   SLIST_FOREACH(first, &head, link){
-    if(first!=head.slh_first){
-      printf(",");
-    }
-    printf("%s", first->name);
+    arr[k]=malloc(strlen(first->name)+1);
+    strcpy(arr[k],first->name);
+    k++;
+
     is_newroom = true;
     for(i = 0;i < totalroom; i++){
       if(first->roomnow==roomlist[i]) is_newroom=false;
@@ -172,26 +204,38 @@ void print_summary(struct Person *first, struct slisthead head) {
       totalroom++;
     }
   }
+  sort(arr, k);
+    // Print the sorted names
+  for (i = 0; i < k; i++)
+    printf("%s \n", arr[i]);
   
         
 
   int roomflag;        
   for(i = 0;i < totalroom; i++) {
     bool firstone = true;
+    int m;
     roomflag = roomlist[i];
-    printf("\n%i: ",roomflag);
+    char * roomchar[100];
+    printf("%i: ",roomflag);
       SLIST_FOREACH(first, &head, link){
         if(first->roomnow == roomflag){
-          if(firstone){
-            firstone = false;
-          }
-          else{
-            printf(",");
-          }
-          printf("%s",first->name);
+          //Store the name in the array
+          roomchar[m]=malloc(strlen(first->name)+1);
+          strcpy(roomchar[m],first->name);
+          m++;
         }
       }
-    printf("\n");
+    sort(roomchar, m);
+    for (i = 0; i < m; i++){
+        printf("%s", roomchar[i]);
+        if(i == m-1){
+          printf("\n");
+        }
+        else{
+          printf(",");
+        }
+    }    
   }            
   return;
 }
