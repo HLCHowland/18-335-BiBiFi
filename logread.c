@@ -127,13 +127,28 @@ void print_time(Record *Rarr, unsigned int num_records, char *name) {
   return;
 }
 
-void print_rooms(struct Person *first, struct slisthead head, char *name) {
+void print_rooms(struct Person *first, struct slisthead head, char *name, bool is_employee) {
   int i;
   SLIST_FOREACH(first, &head, link){
         if(strcmp(first->name,name)==0){
-          for(i = 0; i < first->roomnumber; i++)
-          printf("%i ", first->roomrecord[i]);
+          if(first->is_employee == is_employee){
+            for(i = 0; i < first->roomnumber; i++){
+              printf("%i", first->roomrecord[i]);
+              if(i!=first->roomnumber-1){
+                printf(","); 
+              }
+              else{
+                printf("\n");
+              }
+            }
+            return;
+          }
+          else{
+            printf("Guest type doesn't match");
+            exit(255);
+          } 
         }
+        
   }        
   return;
 }
@@ -144,7 +159,10 @@ void print_summary(struct Person *first, struct slisthead head) {
   int i;
   bool is_newroom = true;
   SLIST_FOREACH(first, &head, link){
-    printf("%s,", first->name);
+    if(first!=head.slh_first){
+      printf(",");
+    }
+    printf("%s", first->name);
     is_newroom = true;
     for(i = 0;i < totalroom; i++){
       if(first->roomnow==roomlist[i]) is_newroom=false;
@@ -159,13 +177,21 @@ void print_summary(struct Person *first, struct slisthead head) {
 
   int roomflag;        
   for(i = 0;i < totalroom; i++) {
+    bool firstone = true;
     roomflag = roomlist[i];
     printf("\n%i: ",roomflag);
       SLIST_FOREACH(first, &head, link){
         if(first->roomnow == roomflag){
-                printf(" %s",first->name);
+          if(firstone){
+            firstone = false;
+          }
+          else{
+            printf(",");
+          }
+          printf("%s",first->name);
         }
       }
+    printf("\n");
   }            
   return;
 }
@@ -268,6 +294,10 @@ int main(int argc, char *argv[]) {
     FILE *log_fp;
     int num_read;
     // Open log read-only
+    if( access( logpath, F_OK ) != 0 ){
+      printf("Log file doesn't exist.");
+      exit(255);
+    }
     printf("Opening existing logfile.\n");
     log_fp = fopen(logpath, "r");
     char *buf_r;
@@ -322,7 +352,7 @@ int main(int argc, char *argv[]) {
       print_summary(first, head);
     }
     if((print_R==true) && (name!=NULL))
-      print_rooms(first, head, name);
+      print_rooms(first, head, name, is_employee);
   }
 }
 
