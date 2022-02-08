@@ -398,5 +398,7 @@ int main(int argc, char *argv[]) {
     if((print_R==true) && (name!=NULL))
       print_rooms(first, head, name, is_employee);
   }
+
+  return 0;
 }
 

@@ -6,7 +6,7 @@ CFLAGS=-g
 LFLAGS=
 
 # Add source code files into the list
-SRC=brg_types.h data.c data.h logappend.c logread.c Makefile
+SRC=brg_types.h data.c data.h logappend.c logread.c Makefile prepSrcCrypto.sh postSrcCrypto.sh
 
 logappend: logappend.o data.o
 	./prepSrcCrypto.sh
@@ -27,7 +27,7 @@ data.o: data.c
 
 handin: clean
 	rm -f handin.tar
-	tar -cf handin.tar --exclude=handin.tar $(SRC)
+	tar -cvf handin.tar --exclude=handin.tar $(SRC)
 
 clean:
 	rm -f *.o
