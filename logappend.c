@@ -218,16 +218,10 @@ int main(int argc, char *argv[]) {
 
     // First step: check if log file exists.
 
-    // If log file doesn't exist, create a new file, write token, and write in CmdLineResult
+    // If log file doesn't exist, create a new file and write token
     if( access( R.logpath, F_OK ) != 0 ){
         // Create new log
         // printf("Log file doesn't currently exists. Opening new log file.\n");
-        // Verify first entry is an arrival to the gallery
-        if (R.is_arrival==false || R.roomID!=-1) {
-            printf("invalid\n");
-            // printf("invalid first entry.\n");
-            exit(255);
-        }
         log_fp = fopen(R.logpath, "w+");
         // Write token to beginning of file
         // token_len(int)+token(str)
@@ -235,33 +229,12 @@ int main(int argc, char *argv[]) {
         serialize_int(token_len_str, R.token_len);
         fwrite(token_len_str, 1, 4, log_fp);
         fwrite(R.token, 1, R.token_len, log_fp);
-
-        // Write new command
-        char *buf;
-        int buf_len;
-        LogEntry L;
-        L.ts = R.ts;
-        L.name = R.name;
-        L.name_len = R.name_len;
-        L.is_employee = R.is_employee;
-        L.is_arrival = R.is_arrival;
-        L.roomID = R.roomID;
-        buf_len = logentry_to_buf(L, &buf);
-        //printf("Printing buf, length of %d:\n", buf_len);
-        //for (i=0; i<buf_len; i++) {
-        //    printf("%d ",buf[i]);
-        //}
-        //printf("\n");
-        fwrite(buf, 1, buf_len, log_fp);
         fclose(log_fp);
-        free(buf);
-        return 0;
     }
 
     // Second step: check if token matches the one in existing log
 
     // Open log read-only
-    // printf("Opening existing logfile.\n");
     log_fp = fopen(R.logpath, "r");
     char *buf_r;
     buf_r = malloc(4);
@@ -290,7 +263,8 @@ int main(int argc, char *argv[]) {
     int current_location = -2;
     buf_r = realloc(buf_r, 4);
     num_read = fread(buf_r, 1, 4, log_fp);
-    int last_ts;
+    // printf("num_read is %d\n", num_read);
+    int last_ts = -1;
     while (num_read != 0) {
         assert(num_read==4 && "4 bytes expected for entry_len");
         // Deserialize one entry

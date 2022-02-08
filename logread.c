@@ -276,7 +276,7 @@ int main(int argc, char *argv[]) {
     memcpy(logpath, argv[optind], logpath_len);
   }
   else {
-    printf("Input missing log file.\n");
+    printf("invalid\n");
     exit(255);
   }
 
@@ -295,10 +295,10 @@ int main(int argc, char *argv[]) {
     int num_read;
     // Open log read-only
     if( access( logpath, F_OK ) != 0 ){
-      printf("Log file doesn't exist.");
+      printf("invalid");
       exit(255);
     }
-    printf("Opening existing logfile.\n");
+    // printf("Opening existing logfile.\n");
     log_fp = fopen(logpath, "r");
     char *buf_r;
     buf_r = malloc(4);
