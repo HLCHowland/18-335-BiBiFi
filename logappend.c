@@ -216,7 +216,7 @@ int main(int argc, char *argv[]) {
     // If log file doesn't exist, create a new file, write token, and write in CmdLineResult
     if( access( R.logpath, F_OK ) != 0 ){
         // Create new log
-        printf("Log file doesn't currently exists.\n");
+        printf("Log file doesn't currently exists. Opening new log file.\n");
         // Verify first entry is an arrival to the gallery
         if (R.is_arrival==false || R.roomID!=-1) {
             printf("invalid\n");

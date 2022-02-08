@@ -128,9 +128,10 @@ void print_time(Record *Rarr, unsigned int num_records, char *name) {
 }
 
 void print_rooms(struct Person *first, struct slisthead head, char *name) {
+  int i;
   SLIST_FOREACH(first, &head, link){
         if(strcmp(first->name,name)==0){
-          for(int i = 0; i < first->roomnumber; i++)
+          for(i = 0; i < first->roomnumber; i++)
           printf("%i ", first->roomrecord[i]);
         }
   }        
@@ -140,11 +141,12 @@ void print_rooms(struct Person *first, struct slisthead head, char *name) {
 void print_summary(struct Person *first, struct slisthead head) {
   int totalroom = 0;
   int roomlist[100];
+  int i;
   bool is_newroom = true;
   SLIST_FOREACH(first, &head, link){
     printf("%s\n", first->name);
     is_newroom = true;
-    for(int i = 0;i < totalroom; i++){
+    for(i = 0;i < totalroom; i++){
       if(first->roomnow==roomlist[i]) is_newroom=false;
     }
     if(is_newroom == true){
@@ -155,7 +157,7 @@ void print_summary(struct Person *first, struct slisthead head) {
         
 
   int roomflag;        
-  for(int i = 0;i < totalroom; i++)
+  for(i = 0;i < totalroom; i++)
     roomflag = roomlist[i];
     printf("\n%i: ",roomflag);
       SLIST_FOREACH(first, &head, link){
