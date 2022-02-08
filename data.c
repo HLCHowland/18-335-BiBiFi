@@ -82,8 +82,8 @@ void serialize_int(char *buf, int a) {
     buf[3] = 0xff & a;
 }
 
-int deserialize_int(unsigned char *buf) {
-    return ((unsigned char)buf[0]<<24) | ((unsigned char)buf[1]<<16) | ((unsigned char)buf[2]<<8) | (unsigned char)buf[3];
+int deserialize_int(char *buf) {
+    return ((char)buf[0]<<24) | ((char)buf[1]<<16) | ((char)buf[2]<<8) | (char)buf[3];
 }
 
 // log format: entry_len(int) + ts(int) + name(str) + E/G(char) + A/L(char) + roomID(int)

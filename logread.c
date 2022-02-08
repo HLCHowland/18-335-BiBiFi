@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/queue.h>
+#include <assert.h>
+
 
 #include "data.h"
 
@@ -27,31 +29,82 @@ void print_records(Record *records, unsigned int num_records) {
 
 struct Person {
   //TODO put some other stuff here
+  char name[MAX_NAME_LEN];
+  bool is_employee;
+  int roomnow;
+  int roomnumber;
+  int roomrecord[MAX_NAME_LEN];
   SLIST_ENTRY(Person)   link;
 };
 
 SLIST_HEAD(slisthead, Person);
 
 
-void leave_action(struct slisthead *head, char *name, GuestType T, int roomPresent, unsigned long room) {
+void leave_action(struct slisthead *head, char *name, bool is_employee, int roomPresent) {
   //is this person already in the gallery? 
   struct Person *current; 
-  int           found = 0; 
-  
-  //TODO Code this
-  
+  SLIST_FOREACH(current, head, link)
+  {
+    if(strcmp(current->name,name)==0){
+      if(current->is_employee==is_employee){
+        if(current->roomnow!=roomPresent){
+          printf("%s can't leave a room that haven't entered",current->name);
+          return;
+        }
+        current->roomnow=-1;
+        return;
+      }
+      else{
+        printf("guset type conflict %s",current->name);
+        return;
+      }
+    }
+  }
+  printf("The person haven't enter gallery yet %s\n",current->name);
   return;
 }
 
-void arrive_action(struct slisthead *head, char *name, GuestType T, int roomPresent, unsigned long room) {
+void arrive_action(struct slisthead *head, char *name, bool is_employee, int roomPresent) {
   //is this person already in the gallery? 
   struct Person *current; 
-  int           found = 0; 
- 
-  //TODO Code this
+  SLIST_FOREACH(current, head, link)
+    {
+      if(strcmp(current->name,name)==0){
+        if(current->is_employee==is_employee){
+          if(current->roomnow!=-1){
+            printf("Haven't leave room %i\n",current->roomnow);
+            return;
+          }
+          if(roomPresent==-1){
+            printf("The person is already in the gallery %s\n",current->name);
+            return;
+          }
+          current->roomnow=roomPresent;
+          current->roomrecord[current->roomnumber]=roomPresent;
+          current->roomnumber++;
+          return;
+        }
+        else{
+          printf("Guest type conflict %s\n",current->name);
+          return;
+        }
+      }
+    }
+    if(roomPresent!=-1){
+        printf("The person haven't enter gallery yet. Can't visit a room%s\n",current->name);
+        return;
+    }
+    current=malloc(sizeof(struct Person));
+    SLIST_INSERT_HEAD(head, current, link);
+    current->roomnow=roomPresent;
+    current->is_employee=is_employee;
+    strcpy(current->name,name);
+    current->roomnumber=0;
+    return;
 
   return;
 }
+
 
 void execute_records(Record *Rarr, unsigned int num_records, struct slisthead *head) {
   int           i;
@@ -74,62 +127,195 @@ void print_time(Record *Rarr, unsigned int num_records, char *name) {
   return;
 }
 
-void print_rooms(Record *Rarr, unsigned int num_records, char *name) {
-  int           first = 1;
-  int           make_newl = 0;
-  int           i;
-
-
-  //TODO code this
-
+void print_rooms(struct Person *first, struct slisthead head, char *name) {
+  SLIST_FOREACH(first, &head, link){
+        if(strcmp(first->name,name)==0){
+          for(int i = 0; i < first->roomnumber; i++)
+          printf("%i ", first->roomrecord[i]);
+        }
+  }        
   return;
 }
 
-void print_summary(Record *Rarr, unsigned int num_records) {
-  struct slisthead state = SLIST_HEAD_INITIALIZER(state);
-  struct Person *current; 
-  int           found = 0; 
-  int           first = 1;
+void print_summary(struct Person *first, struct slisthead head) {
+  int totalroom = 0;
+  int roomlist[100];
+  bool is_newroom = true;
+  SLIST_FOREACH(first, &head, link){
+    printf("%s\n", first->name);
+    is_newroom = true;
+    for(int i = 0;i < totalroom; i++){
+      if(first->roomnow==roomlist[i]) is_newroom=false;
+    }
+    if(is_newroom == true){
+      roomlist[totalroom] = first->roomnow;
+      totalroom++;
+    }
+  }
+        
 
-  execute_records(Rarr, num_records, &state);
-
-  //TODO Code this
-
+  int roomflag;        
+  for(int i = 0;i < totalroom; i++)
+    roomflag = roomlist[i];
+    printf("\n%i: ",roomflag);
+      SLIST_FOREACH(first, &head, link){
+        if(first->roomnow == roomflag){
+                printf(" %s",first->name);
+        }
+      }            
   return;
 }
 
 int main(int argc, char *argv[]) {
   int   opt,len;
-  char  *logpath = NULL;
-  
-  //TODO Code this
+  //Store parsing result
+  char* token = NULL;
+  int token_len_input = 0;
+  char* name = NULL;
+  int name_len = 0;
+  bool print_S = false;
+  bool print_R = false;
+  bool is_employee = false;
+  char* logpath = NULL;
+  int logpath_len = 0;
+
+  bool EGchecked = false;
+
+// FIrst step: Parse the commnadline
 
   while ((opt = getopt(argc, argv, "K:SRE:G:TI")) != -1) {
     switch(opt) {
       case 'K':
+        token_len_input = strlen(optarg) + 1;
+        token = malloc(token_len_input);
+        memcpy(token, optarg, token_len_input);
         break;
-
       case 'S':
+        print_S = true;
         break;
 
       case 'R':
+        print_R = true;
         break;
 
       case 'T':
+        printf("unimplemented");
+        exit(255); 
         break;
 
       case 'I':
+        printf("unimplemented");
+        exit(255);
         break;
 
       case 'E':
+        //employee name
+        name_len = strlen(optarg) + 1;
+        name = malloc(name_len);
+        memcpy(name, optarg, name_len);
+        is_employee = true;
+        
+        // Error out on duplicate flags
+        if (EGchecked == true) {
+            printf("invalid input\n");
+            exit(255);
+        }
+        EGchecked = true;
+        break;
 
       case 'G':
-        break;
+        //guest name
+        name_len = strlen(optarg) + 1;
+        name = malloc(name_len);
+        memcpy(name, optarg, name_len);
+        is_employee = false;
+        // Error out on duplicate flags
+        if (EGchecked == true) {
+            printf("invalid\n");
+            exit(255);
+        }
+        EGchecked = true;
+	    break;
     }
   }
 
+//Read the log file name
   if(optind < argc) {
-    logpath = argv[optind];
+    logpath_len = strlen(argv[optind]) + 1;
+    logpath = malloc(logpath_len);
+    memcpy(logpath, argv[optind], logpath_len);
   }
 
+//Double check commandline
+  if(print_S && print_R){
+    printf("Can't execute -S and -R together");
+    exit(255);
+  }
+  if(print_R && !EGchecked){
+    printf("Can't find a name");
+    exit(255);    
+  }  
+
+//Second step: check if token matches the one in existing log
+    FILE *log_fp;
+    int num_read;
+    // Open log read-only
+    printf("Opening existing logfile.\n");
+    log_fp = fopen(logpath, "r");
+    char *buf_r;
+    buf_r = malloc(4);
+    num_read = fread(buf_r, 1, 4, log_fp);
+    assert(num_read==4 && "4 bytes expected for token_len");
+    int token_len = deserialize_int(buf_r);
+    num_read = fread(buf_r, 1, token_len, log_fp);
+    assert(num_read==token_len && "num_read not equal to token_len");
+    // Compare tokens
+    if (strcmp(buf_r, token) != 0) {
+        printf("invalid\n");
+        printf("token mismatched. %s from input, %s expected from log.\n", token, buf_r);
+        exit(255);
+    }
+
+    // Third step: Read through the logentry, execute log entry one by one
+
+    // -2=not in gallery, -1=in gallery, 0-1073741823=in room
+    struct slisthead head = SLIST_HEAD_INITIALIZER(head);
+    int current_location = -2;
+    buf_r = realloc(buf_r, 4);
+    num_read = fread(buf_r, 1, 4, log_fp);
+    int last_ts;
+    while (num_read != 0) {
+        assert(num_read==4 && "4 bytes expected for entry_len");
+        // Deserialize one entry
+        int entry_len = deserialize_int(buf_r);
+        buf_r = realloc(buf_r, entry_len);
+        memset(buf_r, 0, entry_len);
+        num_read = fread(buf_r, 1, entry_len, log_fp);
+        assert(num_read==entry_len && "num_read not equal to entry_len");
+        LogEntry L;
+        buf_to_logentry(&L, buf_r, entry_len);
+        // Check match and update person's location
+        if(L.is_arrival==true){
+          arrive_action(&head,L.name,L.is_employee,L.roomID);
+          }
+        else {
+          leave_action(&head,L.name,L.is_employee,L.roomID);
+          }
+        free(L.name);
+        // Read next entry
+        buf_r = realloc(buf_r, 4);
+        num_read = fread(buf_r, 1, 4, log_fp);
+    }
+    
+    // Forth step: Print the information we want
+    struct Person *first;
+    fclose(log_fp);
+    if(logpath!=NULL){
+    if(print_S==true){
+      print_summary(first, head);
+    }
+    if((print_R==true) && (name!=NULL))
+      print_rooms(first, head, name);
+  }
 }
+

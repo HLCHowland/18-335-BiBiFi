@@ -1,7 +1,7 @@
 #ifndef _BUFFR_H
 #define _BUFFR_H
 #include <stdbool.h>
-
+#define MAX_NAME_LEN (20)
 typedef struct _Buffer {
   unsigned char *Buf;
   unsigned long Length;
@@ -42,7 +42,7 @@ int read_records_from_path(char *path, unsigned char *key, Record **, unsigned i
 
 // Our helper functions
 void serialize_int(char *buf, int a);
-int deserialize_int(unsigned char *buf);
+int deserialize_int(char *buf);
 int logentry_to_buf(LogEntry L, char **buf);
 void buf_to_logentry(LogEntry * L, char *buf, int entry_len);
 
