@@ -8,8 +8,8 @@
 #include <sys/queue.h>
 #include <assert.h>
 
-
 #include "data.h"
+#include "fileEncryptionTest.h"
 
 char salt[] = "XXXXXXXXXXXXXXXXXXXX";
 char CTUID[] = "XXXXXXXXXXXXXXXXXXXX";

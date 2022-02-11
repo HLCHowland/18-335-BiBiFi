@@ -10,8 +10,10 @@
 #include <err.h>
 #include <errno.h>
 #include <assert.h>
+#include <sodium.h>
 
 #include "data.h"
+#include "fileEncryptionTest.h"
 
 char salt[] = "XXXXXXXXXXXXXXXXXXXX";
 char CTUID[] = "XXXXXXXXXXXXXXXXXXXX";
@@ -26,8 +28,10 @@ typedef struct _CmdLineResult {
   char*   name;
   int     name_len;
   int     roomID;
-  char*   logpath;
-  int     logpath_len;
+  char*   logpath_pre;
+  char*   logpath_post;
+  int     logpath_pre_len;
+  int     logpath_post_len;
 } CmdLineResult;
 
 
@@ -144,10 +148,11 @@ CmdLineResult parse_cmdline(int argc, char *argv[], int is_batch) {
   
   //pick up the positional argument for log path
   if(optind < argc) {
-    R.logpath_len = strlen(argv[optind]) + 1;
-    logpath = malloc(R.logpath_len);
-    memcpy(logpath, argv[optind], R.logpath_len);
-    R.logpath = logpath;
+    R.logpath_post_len = strlen(argv[optind]) + 1;
+    logpath = malloc(R.logpath_post_len);
+    memcpy(logpath, argv[optind], R.logpath_post_len);
+    R.logpath_post = logpath;
+    R.logpath_pre =  strcat(logpath, "_pre");
   }
   else if (batchfile==NULL) {
     // printf("Input missing log file.\n");
@@ -192,8 +197,8 @@ void print_cmdline(CmdLineResult R){
     printf("name: %s\n", R.name);
     printf("name_len: %d\n", R.name_len);
     printf("roomID: %d\n", R.roomID);
-    printf("logpath: %s\n", R.logpath);
-    printf("logpath_len: %d\n", R.logpath_len);
+    printf("logpath: %s\n", R.logpath_post);
+    printf("logpath_len: %d\n", R.logpath_post_len);
 }
 
 void print_logentry(LogEntry L){
@@ -219,10 +224,20 @@ int main(int argc, char *argv[]) {
     // First step: check if log file exists.
 
     // If log file doesn't exist, create a new file and write token
-    if( access( R.logpath, F_OK ) != 0 ){
+    if( access( R.logpath_post, F_OK ) != 0 ){
         // Create new log
         // printf("Log file doesn't currently exists. Opening new log file.\n");
-        log_fp = fopen(R.logpath, "w+");
+      
+        // char *pre_encrypt_logpath;
+        // pre_encrypt_logpath = strcat(R.logpath, "_pre");
+        // printf("%s", pre_encrypt_logpath);
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+        log_fp = fopen(R.logpath_pre, "w+");
         // Write token to beginning of file
         // token_len(int)+token(str)
         char token_len_str[4];
@@ -230,12 +245,37 @@ int main(int argc, char *argv[]) {
         fwrite(token_len_str, 1, 4, log_fp);
         fwrite(R.token, 1, R.token_len, log_fp);
         fclose(log_fp);
+
+
+        unsigned char key[crypto_secretstream_xchacha20poly1305_KEYBYTES];
+    
+        crypto_secretstream_xchacha20poly1305_keygen(key);
+        
+        if (sodium_init() != 0) {
+            return 1;
+        }
+    
+        // char* encFile[] = strncat(R.logpath)
+        if (encrypt(R.logpath_pre, R.logpath_post, key) != 0) {
+            printf("Error\n");
+            return 1;
+        }
+        printf("%s\n", R.logpath_post);
+
+
+        // must encrypt right here
+
+
+
     }
 
     // Second step: check if token matches the one in existing log
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
     // Open log read-only
-    log_fp = fopen(R.logpath, "r");
+    log_fp = fopen(R.logpath_post, "r");
     char *buf_r;
     buf_r = malloc(4);
     num_read = fread(buf_r, 1, 4, log_fp);
@@ -331,8 +371,31 @@ int main(int argc, char *argv[]) {
     }
     fclose(log_fp);
 
+    // Adding file encryption right here:
+    // unsigned char key[crypto_secretstream_xchacha20poly1305_KEYBYTES];
+    
+    // crypto_secretstream_xchacha20poly1305_keygen(key);
+    
+    // if (sodium_init() != 0) {
+    //     return 1;
+    // }
+    // char* encFile[] = strncat(R.logpath)
+    // if (encrypt(R.logpath, "/tmp/original", key) != 0) {
+    //     printf("Error\n");
+    //     return 1;
+    // }
+    // printf("%s\n", R.logpath);
+
+
+
+
     // Final step: add command line as a new log entry
-    log_fp = fopen(R.logpath, "a");
+    
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    log_fp = fopen(R.logpath_post, "a");
     char *buf;
     int buf_len;
     LogEntry L;
