@@ -248,7 +248,6 @@ int main(int argc, char *argv[]) {
 
 
         unsigned char key[crypto_secretstream_xchacha20poly1305_KEYBYTES];
-    
         crypto_secretstream_xchacha20poly1305_keygen(key);
         
         if (sodium_init() != 0) {

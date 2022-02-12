@@ -3,7 +3,7 @@
 #include "fileEncryptionTest.h"
 
 
-static int encrypt(const char *target_file, const char *source_file,
+int encrypt(const char *target_file, const char *source_file,
         const unsigned char key[crypto_secretstream_xchacha20poly1305_KEYBYTES])
 {
     unsigned char  buf_in[CHUNK_SIZE];
@@ -33,7 +33,7 @@ static int encrypt(const char *target_file, const char *source_file,
     return 0;
 }
 
-static int decrypt(const char *target_file, const char *source_file,
+int decrypt(const char *target_file, const char *source_file,
         const unsigned char key[crypto_secretstream_xchacha20poly1305_KEYBYTES])
 {
     unsigned char  buf_in[CHUNK_SIZE + crypto_secretstream_xchacha20poly1305_ABYTES];
@@ -73,24 +73,24 @@ ret:
     return ret;
 }
 
-int
-main(void)
-{
-    unsigned char key[crypto_secretstream_xchacha20poly1305_KEYBYTES];
+// int
+// main(void)
+// {
+//     unsigned char key[crypto_secretstream_xchacha20poly1305_KEYBYTES];
 
-    if (sodium_init() != 0) {
-        return 1;
-    }
-    crypto_secretstream_xchacha20poly1305_keygen(key);
-    if (encrypt("/tmp/original", "/tmp/original", key) != 0) {
-        printf("Error\n");
-        return 1;
-    }
-    if (decrypt("/tmp/original", "/tmp/original", key) != 0) {
-        return 1;
-    }
-    // if (decrypt("/tmp/decrypted", "/tmp/encrypted", key) != 0) {
-    //     return 1;
-    // }
-    return 0;
-}
+//     if (sodium_init() != 0) {
+//         return 1;
+//     }
+//     crypto_secretstream_xchacha20poly1305_keygen(key);
+//     if (encrypt("/tmp/original", "/tmp/original", key) != 0) {
+//         printf("Error\n");
+//         return 1;
+//     }
+//     if (decrypt("/tmp/original", "/tmp/original", key) != 0) {
+//         return 1;
+//     }
+//     // if (decrypt("/tmp/decrypted", "/tmp/encrypted", key) != 0) {
+//     //     return 1;
+//     // }
+//     return 0;
+// }
