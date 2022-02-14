@@ -207,14 +207,12 @@ void print_summary(struct Person *first, struct slisthead head) {
   sort(arr, k);
     // Print the sorted names
   for (i = 0; i < k; i++)
-    printf("%s \n", arr[i]);
+    printf("%s\n", arr[i]);
   
-        
-
   int roomflag;        
   for(i = 0;i < totalroom; i++) {
     bool firstone = true;
-    int m;
+    int m = 0;
     roomflag = roomlist[i];
     char * roomchar[100];
     printf("%i: ",roomflag);
