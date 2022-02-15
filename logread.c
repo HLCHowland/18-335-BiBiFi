@@ -39,11 +39,17 @@ struct Person {
 SLIST_HEAD(slisthead, Person);
 
 // Defining comparator function as per the requirement
-static int myCompare(const void* a, const void* b)
+static int strCompare(const void* a, const void* b)
 {
   
     // setting up rules for comparison
     return strcmp(*(char**)a, *(char**)b);
+}
+static int intCompare(const void* a, const void* b)
+{
+  
+    // setting up rules for comparison
+    return *((int *)a) > *((int *)b);
 }
   
 // Function to sort the array
@@ -51,88 +57,52 @@ void sort(char* arr[], int n)
 {
     // calling qsort function to sort the array
     // with the help of Comparator
-    qsort(arr, n, sizeof(char*), myCompare);
+    qsort(arr, n, sizeof(char*), strCompare);
+}
+
+void sorti(int arr[], int n)
+{
+    // calling qsort function to sort the array
+    // with the help of Comparator
+    qsort(arr, n, sizeof(int), intCompare);
 }
 
 void leave_action(struct slisthead *head, char *name, bool is_employee, int roomPresent) {
-  struct Person *current; 
-  SLIST_FOREACH(current, head, link)
-  {
-    //Find the person
-    if(strcmp(current->name,name)==0){
-      //Is the person guest type correct?
-      if(current->is_employee==is_employee){
-        //Is the room number correct?
-        if(current->roomnow!=roomPresent){
-          printf("%s can't leave a room that haven't entered",current->name);
-          return;
+    struct Person *current; 
+    SLIST_FOREACH(current, head, link) {
+        //Find the person
+        if(strcmp(current->name,name)==0 && current->is_employee==is_employee){
+            //Is the person in gallery?
+            if(current->roomnow == -1){
+                current->roomnow=-2;
+            }
+            else {
+                current->roomnow=-1;
+            }
         }
-        //Is the person in gallery?
-        if(current->roomnow == -1){
-          current->roomnow=-2;
-          return;
-        }
-        current->roomnow=-1;
-        return;
-      }
-      else{
-        printf("guset type conflict %s\n",current->name);
-        return;
-      }
     }
-  }
-  printf("The person haven't enter gallery yet %s\n",current->name);
-  return;
 }
 
 void arrive_action(struct slisthead *head, char *name, bool is_employee, int roomPresent) {
-  //is this person already in the gallery? 
-  struct Person *current; 
-  SLIST_FOREACH(current, head, link)
-    {
-      if(strcmp(current->name,name)==0){
-        if(current->is_employee==is_employee){
-          if(current->roomnow!=-1){
-            printf("Haven't leave room %i\n",current->roomnow);
+    struct Person *current;
+    // Check if person is already in the list
+    SLIST_FOREACH(current, head, link) {
+        if(strcmp(current->name,name)==0 && current->is_employee==is_employee){
+            current->roomnow=roomPresent;
+
+            current->roomrecord[current->roomnumber]=roomPresent;
+            current->roomnumber++;
             return;
-          }
-          if(current->roomnow == -2){
-            if(roomPresent==-1){
-              current->roomnow=roomPresent;
-            }
-            else{
-              printf("%s haven't enter gallery yet. Can't visit a room \n",current->name);
-              return;
-            }
-          }
-          if(roomPresent==-1){
-            printf("%s is already in the gallery \n",current->name);
-            return;
-          }
-          current->roomnow=roomPresent;
-          current->roomrecord[current->roomnumber]=roomPresent;
-          current->roomnumber++;
-          return;
         }
-        else{
-          printf("Guest type conflict %s\n",current->name);
-          return;
-        }
-      }
     }
-    if(roomPresent!=-1){
-        printf("The person haven't enter gallery yet. Can't visit a room%s\n",current->name);
-        return;
-    }
+
+    // Add person to the list if not found above
     current=malloc(sizeof(struct Person));
     SLIST_INSERT_HEAD(head, current, link);
     current->roomnow=roomPresent;
     current->is_employee=is_employee;
     strcpy(current->name,name);
     current->roomnumber=0;
-    return;
-
-  return;
 }
 
 
@@ -158,84 +128,98 @@ void print_time(Record *Rarr, unsigned int num_records, char *name) {
 }
 
 void print_rooms(struct Person *first, struct slisthead head, char *name, bool is_employee) {
-  int i;
-  SLIST_FOREACH(first, &head, link){
-        if(strcmp(first->name,name)==0){
-          if(first->is_employee == is_employee){
+    int i;
+    SLIST_FOREACH(first, &head, link){
+        if(strcmp(first->name,name)==0 && first->is_employee==is_employee){
             for(i = 0; i < first->roomnumber; i++){
-              printf("%i", first->roomrecord[i]);
-              if(i!=first->roomnumber-1){
-                printf(","); 
-              }
-              else{
-                printf("\n");
-              }
+                printf("%i", first->roomrecord[i]);
+                if(i!=first->roomnumber-1){
+                    printf(","); 
+                }
+                else{
+                    printf("\n");
+                    return;
+                }
             }
-            return;
-          }
-          else{
-            printf("Guest type doesn't match\n");
-            exit(255);
-          } 
         }
-        
-  }        
-  return;
+    }        
 }
 
 void print_summary(struct Person *first, struct slisthead head) {
-  int totalroom = 0;
-  int roomlist[100];
-  int i;
-  bool is_newroom = true;
-  char * arr[100];
-  int k = 0;
-  SLIST_FOREACH(first, &head, link){
-    arr[k]=malloc(strlen(first->name)+1);
-    strcpy(arr[k],first->name);
-    k++;
+    int totalroom = 0;
+    int roomlist[100];
+    int i, j;
+    bool is_newroom = true;
+    char * arrE[100];
+    char * arrG[100];
+    int kE = 0;
+    int kG = 0;
+    SLIST_FOREACH(first, &head, link){
+        if (first->roomnow>=-1) {
+            if (first->is_employee) {
+                arrE[kE]=malloc(strlen(first->name)+1);
+                strcpy(arrE[kE],first->name);
+                kE++;
+            } else {
+                arrG[kG]=malloc(strlen(first->name)+1);
+                strcpy(arrG[kG],first->name);
+                kG++;
+            }
+    
+            // Update a list of rooms
+            if (first->roomnow>=0) {
+                is_newroom = true;
+                for(i = 0;i < totalroom; i++) {
+                  if(first->roomnow==roomlist[i]) is_newroom=false;
+                }
+                if(is_newroom == true) {
+                  roomlist[totalroom] = first->roomnow;
+                  totalroom++;
+                }
+            }
+        }
+    }
+    // Sort people's names and room numbers
+    sort(arrE, kE);
+    sort(arrG, kG);
+    sorti(roomlist, totalroom);
 
-    is_newroom = true;
-    for(i = 0;i < totalroom; i++){
-      if(first->roomnow==roomlist[i]) is_newroom=false;
+    // Print the sorted employees
+    for (i = 0; i < kE; i++) {
+        printf("%s", arrE[i]);
+        if (i!= kE-1) printf(",");
     }
-    if(is_newroom == true){
-      roomlist[totalroom] = first->roomnow;
-      totalroom++;
+    printf("\n");
+
+    // Print the sorted guests
+    for (i = 0; i < kG; i++) {
+        printf("%s", arrG[i]);
+        if (i!= kG-1) printf(",");
     }
-  }
-  sort(arr, k);
-    // Print the sorted names
-  for (i = 0; i < k; i++)
-    printf("%s\n", arr[i]);
   
-  int roomflag;        
-  for(i = 0;i < totalroom; i++) {
-    bool firstone = true;
-    int m = 0;
-    roomflag = roomlist[i];
-    char * roomchar[100];
-    printf("%i: ",roomflag);
-      SLIST_FOREACH(first, &head, link){
-        if(first->roomnow == roomflag){
-          //Store the name in the array
-          roomchar[m]=malloc(strlen(first->name)+1);
-          strcpy(roomchar[m],first->name);
-          m++;
+    for(i = 0;i < totalroom; i++) {
+        bool firstone = true;
+        int m = 0;
+        char * roomchar[100];
+        printf("\n");
+        printf("%i: ", roomlist[i]);
+
+        //Store the name in the array for sorting
+        SLIST_FOREACH(first, &head, link){
+            if(first->roomnow == roomlist[i]) {
+                roomchar[m]=malloc(strlen(first->name)+1);
+                strcpy(roomchar[m],first->name);
+                m++;
+            }
         }
-      }
-    sort(roomchar, m);
-    for (i = 0; i < m; i++){
-        printf("%s", roomchar[i]);
-        if(i == m-1){
-          printf("\n");
-        }
-        else{
-          printf(",");
-        }
-    }    
-  }            
-  return;
+        sort(roomchar, m);
+        for (j = 0; j < m; j++) {
+            printf("%s", roomchar[j]);
+            if(j != m-1) {
+                printf(",");
+            }
+        }    
+    }            
 }
 
 int main(int argc, char *argv[]) {
@@ -351,7 +335,7 @@ int main(int argc, char *argv[]) {
     assert(num_read==token_len && "num_read not equal to token_len");
     // Compare tokens
     if (strcmp(buf_r, token) != 0) {
-        printf("integrity violation\n");
+        printf("invalid");
         exit(255);
     }
 

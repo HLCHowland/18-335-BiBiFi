@@ -253,7 +253,7 @@ int main(int argc, char *argv[]) {
     assert(num_read==token_len && "num_read not equal to token_len");
     // Compare tokens
     if (strcmp(buf_r, R.token) != 0) {
-        printf("integrity violation\n");
+        printf("invalid");
         exit(255);
     }
 
