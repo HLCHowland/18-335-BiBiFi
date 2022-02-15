@@ -1,25 +1,22 @@
 log file format:
-token_len (int)
-token (str)
-entry_len1 (int)
-ts (int)
-name (str)
-E/G (char)
-A/L (char)
-roomID (int, -1 for gallery and >=0 for rooms)
-entry_len2 (int)
-ts (int)
-name (str)
-E/G (char)
-A/L (char)
-roomID (int, -1 for gallery and >=0 for rooms)
-
-
+(file header)
+    token_len (int)
+    token (str)
+(repeating fields for entries)
+    entry_len (int)
+    ts (int)
+    name (str)
+    E/G (char)
+    A/L (char)
+    roomID (int, -1 for gallery and >=0 for rooms)
 
 Issues To Fix:
+    general:
+        Fix Test 5 and 6 (basic-flag-checking).
+        Implement optional feature to pass 3 optional tests.
+        Free memory after heap usage.
     logread.c:
         Avoid using fixed sized arrays and MAX_NAME_LEN, because input names and number of rooms can be arbitrarily long.
-        Haven't consider the -2 room situation.
     logappend.c:
         Implement batching.
         Try to read a whole file into a buf once rather than read it multiple times. In this way it is a lot more easier for decrypt. 
