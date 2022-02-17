@@ -28,11 +28,11 @@ void print_records(Record *records, unsigned int num_records) {
 }
 
 struct Person {
-  char name[MAX_NAME_LEN];
+  char* name;
   bool is_employee;
   int roomnow;
   int roomnumber;
-  int roomrecord[MAX_NAME_LEN];
+  int *roomrecord;
   SLIST_ENTRY(Person)   link;
 };
 
@@ -89,7 +89,7 @@ void arrive_action(struct slisthead *head, char *name, bool is_employee, int roo
     SLIST_FOREACH(current, head, link) {
         if(strcmp(current->name,name)==0 && current->is_employee==is_employee){
             current->roomnow=roomPresent;
-
+            current->roomrecord = realloc(current->roomrecord,(current->roomnumber+2)*sizeof(int));
             current->roomrecord[current->roomnumber]=roomPresent;
             current->roomnumber++;
             return;
@@ -101,6 +101,7 @@ void arrive_action(struct slisthead *head, char *name, bool is_employee, int roo
     SLIST_INSERT_HEAD(head, current, link);
     current->roomnow=roomPresent;
     current->is_employee=is_employee;
+    current->name=(char*) malloc((strlen(name)+1)*sizeof(char));
     strcpy(current->name,name);
     current->roomnumber=0;
 }
