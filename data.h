@@ -1,7 +1,6 @@
 #ifndef _BUFFR_H
 #define _BUFFR_H
 #include <stdbool.h>
-#define MAX_NAME_LEN (20)
 typedef struct _Buffer {
   unsigned char *Buf;
   unsigned long Length;

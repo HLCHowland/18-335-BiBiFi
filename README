@@ -12,10 +12,9 @@ log file format:
 
 Issues To Fix:
     general:
-        Implement optional feature to pass 3 optional tests.
         Free memory after heap usage.
     logread.c:
-        Avoid using fixed sized arrays and MAX_NAME_LEN, because input names and number of rooms can be arbitrarily long.
+        Implement optional read feature to pass 3 optional tests.
     logappend.c:
         Try to read a whole file into a buf once rather than read it multiple times. In this way it is a lot more easier for decrypt. 
         
