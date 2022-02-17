@@ -34,7 +34,7 @@ typedef struct _CmdLineResult {
 
 // TODO: Is the use of strlen to determine token_len/name_len secure?
 CmdLineResult parse_cmdline(int argc, char *argv[], int is_batch) {
-  CmdLineResult R = { 0, NULL, 0, false, false, NULL, 0, -1, NULL, 0, NULL};
+  CmdLineResult R = { -1, NULL, 0, false, false, NULL, 0, -1, NULL, 0, NULL};
   int opt = -1;
   bool EGchecked = false;
   bool ALchecked = false;
@@ -155,17 +155,39 @@ CmdLineResult parse_cmdline(int argc, char *argv[], int is_batch) {
     R.logpath = logpath;
   }
 
-  // No other flags if doing batching
-  if (R.batchpath!=NULL && nonbatch==true) {
-    // printf("Input missing log file.\n");
-    printf("invalid\n");
-    exit(255);
+  // Options check for batching
+  if (R.batchpath!=NULL) {
+    // No other flags if doing batching
+    if (nonbatch==true) {
+        printf("invalid\n");
+        exit(255);
+    }
   }
+  // Options check for non-batching
+  else {
+    // timestamp required
+    if (R.ts==-1) {
+        printf("invalid\n");
+        exit(255);
+    }
 
-  // log file required if not batching
-  if (R.batchpath==NULL && R.logpath==NULL) {
-    printf("invalid\n");
-    exit(255);
+    // token required
+    if (R.token==NULL) {
+        printf("invalid\n");
+        exit(255);
+    }
+
+    // log file required
+    if (R.logpath==NULL) {
+        printf("invalid\n");
+        exit(255);
+    }
+
+    // Require both E/G and A/L
+    if (!EGchecked || !ALchecked) {
+        printf("invalid\n");
+        exit(255);
+    }
   }
   
   return R;
@@ -230,7 +252,6 @@ int main(int argc, char *argv[]) {
     }
 
     // Non-batched case
-
     //print_cmdline(R);
 
     // First step: check if log file exists.

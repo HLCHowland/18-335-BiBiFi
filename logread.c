@@ -286,12 +286,19 @@ int main(int argc, char *argv[]) {
   }
 
 //Double check commandline
+  // -S and -R can't be present together
   if(print_S && print_R){
-    printf("Can't execute -S and -R together");
+    printf("invalid");
     exit(255);
   }
+  // One of -S or -R must be present
+  if(!print_S && !print_R){
+    printf("invalid");
+    exit(255);
+  }
+  // -R needs a guest or employee's name
   if(print_R && !EGchecked){
-    printf("Can't find a name");
+    printf("invalid");
     exit(255);    
   }  
 
