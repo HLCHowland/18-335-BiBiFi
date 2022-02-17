@@ -12,7 +12,6 @@ log file format:
 
 Issues To Fix:
     general:
-        Fix Test 5 and 6 (basic-flag-checking).
         Implement optional feature to pass 3 optional tests.
         Free memory after heap usage.
     logread.c:
