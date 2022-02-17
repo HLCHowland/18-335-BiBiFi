@@ -18,6 +18,5 @@ Issues To Fix:
     logread.c:
         Avoid using fixed sized arrays and MAX_NAME_LEN, because input names and number of rooms can be arbitrarily long.
     logappend.c:
-        Implement batching.
         Try to read a whole file into a buf once rather than read it multiple times. In this way it is a lot more easier for decrypt. 
         

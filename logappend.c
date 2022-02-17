@@ -28,42 +28,41 @@ typedef struct _CmdLineResult {
   int     roomID;
   char*   logpath;
   int     logpath_len;
+  char*   batchpath;
 } CmdLineResult;
 
 
-int do_batch(char *);
-
 // TODO: Is the use of strlen to determine token_len/name_len secure?
 CmdLineResult parse_cmdline(int argc, char *argv[], int is_batch) {
-  CmdLineResult R = { 0, NULL, 0, false, false, NULL, 0, -1};
-  int opt,r = -1;
-  int ts = -1;
+  CmdLineResult R = { 0, NULL, 0, false, false, NULL, 0, -1, NULL, 0, NULL};
+  int opt = -1;
   bool EGchecked = false;
   bool ALchecked = false;
+  bool nonbatch = false;
 
   //argument data
   // Record  Rec = {0};
   char    *logpath = NULL;
-  char    *batchfile = NULL;
+  char    *batchpath = NULL;
+  int     batchpath_len;
   char    *token;
   char    *name;
 
   //pick up the switches
   while ((opt = getopt(argc, argv, "T:K:E:G:ALR:B:")) != -1) {
-    int     br = 0;
-    size_t  len;
-    
-    //TODO Code this
-    
     switch(opt) {
       case 'B':
-        batchfile = optarg;
         //batch file
+        batchpath_len = strlen(optarg) + 1;
+        batchpath = malloc(batchpath_len);
+        memcpy(batchpath, optarg, batchpath_len);
+        R.batchpath = batchpath;
 	    break;  
 
       case 'T':
 	    //timestamp
 	    R.ts = atoi(optarg);
+        nonbatch= true;
         break;
 
       case 'K':
@@ -72,6 +71,7 @@ CmdLineResult parse_cmdline(int argc, char *argv[], int is_batch) {
         token = malloc(R.token_len);
         memcpy(token, optarg, R.token_len);
         R.token = token;
+        nonbatch= true;
         break;
 
       case 'A':
@@ -84,6 +84,7 @@ CmdLineResult parse_cmdline(int argc, char *argv[], int is_batch) {
             exit(255);
         }
         ALchecked = true;
+        nonbatch= true;
         break; 
       
       case 'L':
@@ -96,6 +97,7 @@ CmdLineResult parse_cmdline(int argc, char *argv[], int is_batch) {
             exit(255);
         }
         ALchecked = true;
+        nonbatch= true;
         break;
 
       case 'E':
@@ -112,6 +114,7 @@ CmdLineResult parse_cmdline(int argc, char *argv[], int is_batch) {
             exit(255);
         }
         EGchecked = true;
+        nonbatch= true;
         break;
 
       case 'G':
@@ -128,11 +131,13 @@ CmdLineResult parse_cmdline(int argc, char *argv[], int is_batch) {
             exit(255);
         }
         EGchecked = true;
+        nonbatch= true;
 	    break;
 
       case 'R':
         //room ID
         R.roomID = atoi(optarg);
+        nonbatch= true;
         break;
 
       default:
@@ -149,38 +154,21 @@ CmdLineResult parse_cmdline(int argc, char *argv[], int is_batch) {
     memcpy(logpath, argv[optind], R.logpath_len);
     R.logpath = logpath;
   }
-  else if (batchfile==NULL) {
+
+  // No other flags if doing batching
+  if (R.batchpath!=NULL && nonbatch==true) {
     // printf("Input missing log file.\n");
     printf("invalid\n");
     exit(255);
   }
-  
-  //TODO: implement batching
 
-  //if(batchfile != NULL) {
-  //  R.good = do_batch(batchfile);
-  //} else {
-  //  //TODO do stuff
-  //  R.good = 0;
-  //}
-
-  return R;
-}
-
-int do_batch(char *filepath) {
-  //read in data from filepath
-  char  *data = NULL;
-  int   fd = open(filepath, O_RDONLY);
-
-  if(fd <= 0) {
-    return -1;
+  // log file required if not batching
+  if (R.batchpath==NULL && R.logpath==NULL) {
+    printf("invalid\n");
+    exit(255);
   }
-
-  //TODO Code this
-
-  close(fd);
-
-  return 0;
+  
+  return R;
 }
 
 void print_cmdline(CmdLineResult R){
@@ -207,13 +195,42 @@ void print_logentry(LogEntry L){
 
 
 int main(int argc, char *argv[]) {
-    int r;
     CmdLineResult R;
     FILE *log_fp;
-    int i;
+    FILE *batch_fp;
     int num_read;
+    char batch_line[2048];
+    char command_line[2100]; 
   
     R = parse_cmdline(argc, argv, 0);
+
+    // Do batching
+    if (R.batchpath != NULL) {
+        batch_fp = fopen(R.batchpath, "r");
+        if (batch_fp == NULL) {
+            printf("invalid\n");
+            exit(255);
+        }
+        memset(batch_line, 0, 2048);
+        while (fgets(batch_line, 2048, batch_fp)!=NULL) {
+            // Make sure commands in batch file does not do batching
+            if (strstr(batch_line, "-B")) {
+                printf("invalid\n");
+                continue;
+            }
+            memset(command_line, 0, 2100);
+            strcpy(command_line, "./logappend ");
+            strcat(command_line, batch_line);
+            // printf("batch_line is: %s\n", batch_line);
+            // printf("Executing command: %s\n", command_line);
+            system(command_line);
+            memset(batch_line, 0, 2048);
+        }
+        return 0;
+    }
+
+    // Non-batched case
+
     //print_cmdline(R);
 
     // First step: check if log file exists.

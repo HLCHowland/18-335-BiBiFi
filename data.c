@@ -68,7 +68,7 @@ int read_records_from_path(char *path, unsigned char *key, Record **outbuf, unsi
   *outbuf = NULL;
 
   //read in a file 
-  Buffer  B = read_from_path(path, key);
+  // Buffer  B = read_from_path(path, key);
 
   //TODO Code this
   

@@ -1,6 +1,6 @@
 all: logappend logread
 
-CFLAGS=-g 
+CFLAGS=-g -Wall
 
 # Add any libraries you want to include here via: -lthe_library_name
 LFLAGS=
@@ -10,7 +10,7 @@ SRC=brg_types.h data.c data.h logappend.c logread.c Makefile prepSrcCrypto.sh po
 
 logappend: logappend.o data.o
 	./prepSrcCrypto.sh
-	$(CC) -g -o logappend logappend.o data.o $(LFLAGS)
+	$(CC) $(CFLAGS) -o logappend logappend.o data.o $(LFLAGS)
 
 logread: logread.o data.o
 	$(CC) $(CFLAGS) -o logread logread.o data.o $(LFLAGS)

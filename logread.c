@@ -107,27 +107,6 @@ void arrive_action(struct slisthead *head, char *name, bool is_employee, int roo
 }
 
 
-void execute_records(Record *Rarr, unsigned int num_records, struct slisthead *head) {
-  int           i;
-  int           firstTime = 0;
-  unsigned long Seconds; 
-
-  //TODO Code this
-
-  return;
-}
-
-void print_time(Record *Rarr, unsigned int num_records, char *name) {
-  unsigned long     start_time;
-  unsigned long     elapsed_time = 0;
-  int               st = 0;
-  int               i;
-
-  //TODO code this
-
-  return;
-}
-
 void print_rooms(struct Person *first, struct slisthead head, char *name, bool is_employee) {
     int i;
     SLIST_FOREACH(first, &head, link){
@@ -199,7 +178,6 @@ void print_summary(struct Person *first, struct slisthead head) {
     }
   
     for(i = 0;i < totalroom; i++) {
-        bool firstone = true;
         int m = 0;
         char * roomchar[100];
         printf("\n");
@@ -224,7 +202,7 @@ void print_summary(struct Person *first, struct slisthead head) {
 }
 
 int main(int argc, char *argv[]) {
-  int   opt,len;
+  int   opt;
   //Store parsing result
   char* token = NULL;
   int token_len_input = 0;
@@ -344,10 +322,8 @@ int main(int argc, char *argv[]) {
 
     // -2=not in gallery, -1=in gallery, 0-1073741823=in room
     struct slisthead head = SLIST_HEAD_INITIALIZER(head);
-    int current_location = -2;
     buf_r = realloc(buf_r, 4);
     num_read = fread(buf_r, 1, 4, log_fp);
-    int last_ts;
     while (num_read != 0) {
         assert(num_read==4 && "4 bytes expected for entry_len");
         // Deserialize one entry
@@ -372,7 +348,7 @@ int main(int argc, char *argv[]) {
     }
     
     // Forth step: Print the information we want
-    struct Person *first;
+    struct Person *first = NULL;
     fclose(log_fp);
     if(logpath!=NULL){
     if(print_S==true){
