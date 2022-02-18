@@ -12,9 +12,10 @@
 #include <assert.h>
 
 #include "data.h"
+#include "crypto.h"
 
-char salt[] = "XXXXXXXXXXXXXXXXXXXX";
-char CTUID[] = "XXXXXXXXXXXXXXXXXXXX";
+char salt[] = "rwz03CJMRiEGx84qn5Sg";
+char CTUID[] = "IAlBK8X231I3a1JZ5CDq";
 
 typedef struct _CmdLineResult {
   // int     good; Not using good because we exit whenever input is erroneous
@@ -229,9 +230,14 @@ int main(int argc, char *argv[]) {
         fwrite(token_len_str, 1, 4, log_fp);
         fwrite(R.token, 1, R.token_len, log_fp);
         fclose(log_fp);
+        //////////////////////////////////////////////////////////////////////////////////////////////////////
+        encrypt(R.logpath, R.token);
     }
 
+
+
     // Second step: check if token matches the one in existing log
+    decrypt(R.logpath, R.token);
 
     // Open log read-only
     log_fp = fopen(R.logpath, "r");
@@ -329,8 +335,10 @@ int main(int argc, char *argv[]) {
         exit(255);
     }
     fclose(log_fp);
+    encrypt(R.logpath, R.token);
 
     // Final step: add command line as a new log entry
+    decrypt(R.logpath, R.token);
     log_fp = fopen(R.logpath, "a");
     char *buf;
     int buf_len;
@@ -345,6 +353,7 @@ int main(int argc, char *argv[]) {
     fwrite(buf, 1, buf_len, log_fp);
     fclose(log_fp);
     free(buf);
+    encrypt(R.logpath, R.token);
     
         
 

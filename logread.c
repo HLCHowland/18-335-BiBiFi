@@ -11,8 +11,8 @@
 #include "data.h"
 #include "fileEncryptionTest.h"
 
-char salt[] = "XXXXXXXXXXXXXXXXXXXX";
-char CTUID[] = "XXXXXXXXXXXXXXXXXXXX";
+char salt[] = "rwz03CJMRiEGx84qn5Sg";
+char CTUID[] = "IAlBK8X231I3a1JZ5CDq";
 
 int verbose = 0;
 

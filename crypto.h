@@ -6,6 +6,6 @@
 #define CRYPTO_ABYTE_SIZE 17
 #define CRYPTO_FINAL_SIZE 3
 
-static int inplace_encrypt(const char *source_file,const unsigned char key[crypto_secretstream_xchacha20poly1305_KEYBYTES]);
-static int inplace_decrypt(const char *source_file,const unsigned char key[crypto_secretstream_xchacha20poly1305_KEYBYTES]);
+static int encrypt(const char *source_file,const unsigned char key[crypto_secretstream_xchacha20poly1305_KEYBYTES]);
+static int decrypt(const char *source_file,const unsigned char key[crypto_secretstream_xchacha20poly1305_KEYBYTES]);
 
