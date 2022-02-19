@@ -6,7 +6,7 @@ CFLAGS=-g
 LFLAGS= -lsodium -lm
 
 # Add source code files into the list
-SRC=brg_types.h data.c data.h crypto.c crypto.h logappend.c logread.c Makefile prepSrcCrypto.sh postSrcCrypto.sh
+SRC=brg_types.h data.c data.h crypto.c crypto.h logappend.c logread.c prepSrcCrypto.sh postSrcCrypto.sh Makefile
 
 crypto.o: crypto.c
 	$(CC) -g -c -o crypto.o crypto.c $(LFLAGS)
@@ -24,9 +24,6 @@ logappend.o: logappend.c
 
 logread.o: logread.c
 	$(CC) $(CFLAGS) -c -o logread.o logread.c
-
-# crypto.o: crypto.c
-# 	$(CC) -g -c -o crypto.o crypto.c $(LFLAGS)
 
 data.o: data.c
 	$(CC) $(CFLAGS) -c -o data.o data.c

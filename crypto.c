@@ -5,7 +5,7 @@
 #include <math.h>
 #include "crypto.h"
 
-static int inplace_encrypt(const char *source_file,
+int encrypt(const char *source_file,
         const unsigned char key[crypto_secretstream_xchacha20poly1305_KEYBYTES])
 {
     unsigned char  buf_in[CHUNK_SIZE];
@@ -75,7 +75,7 @@ static int inplace_encrypt(const char *source_file,
     return 0;
 }
 
-static int inplace_decrypt(const char *source_file,
+int decrypt(const char *source_file,
         const unsigned char key[crypto_secretstream_xchacha20poly1305_KEYBYTES])
 {
     unsigned char  buf_in[CHUNK_SIZE + crypto_secretstream_xchacha20poly1305_ABYTES];
@@ -158,10 +158,10 @@ static int inplace_decrypt(const char *source_file,
 //     }
 //     // crypto_secretstream_xchacha20poly1305_keygen(key);
 //     unsigned char key[] = "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm";
-//     if (inplace_encrypt("./testFileSmall", key) != 0) {
+//     if (encrypt("./testFileSmall", key) != 0) {
 //         return 1;
 //     }
-//     if (inplace_decrypt( "./testFileSmall", key) != 0) {
+//     if (decrypt( "./testFileSmall", key) != 0) {
 //         return 1;
 //     }
 //     return 0;

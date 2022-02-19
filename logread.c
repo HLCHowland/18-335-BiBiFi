@@ -9,10 +9,10 @@
 #include <assert.h>
 
 #include "data.h"
-#include "fileEncryptionTest.h"
+// #include "fileEncryptionTest.h"
 
-char salt[] = "rwz03CJMRiEGx84qn5Sg";
-char CTUID[] = "IAlBK8X231I3a1JZ5CDq";
+char salt[] = "XXXXXXXXXXXXXXXXXXXX";
+char CTUID[] = "XXXXXXXXXXXXXXXXXXXX";
 
 int verbose = 0;
 
@@ -342,7 +342,10 @@ int main(int argc, char *argv[]) {
       printf("invalid\n");
       exit(255);
     }
-    // printf("Opening existing logfile.\n");
+    
+    // Decrypt the logfile prior to reading
+    decrypt(logpath, token);
+
     log_fp = fopen(logpath, "r");
     char *buf_r;
     buf_r = malloc(4);
@@ -391,6 +394,9 @@ int main(int argc, char *argv[]) {
     // Forth step: Print the information we want
     struct Person *first;
     fclose(log_fp);
+
+    encrypt(logpath, token);
+
     if(logpath!=NULL){
     if(print_S==true){
       print_summary(first, head);

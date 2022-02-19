@@ -14,8 +14,8 @@
 #include "data.h"
 #include "crypto.h"
 
-char salt[] = "rwz03CJMRiEGx84qn5Sg";
-char CTUID[] = "IAlBK8X231I3a1JZ5CDq";
+char salt[] = "XXXXXXXXXXXXXXXXXXXX";
+char CTUID[] = "XXXXXXXXXXXXXXXXXXXX";
 
 typedef struct _CmdLineResult {
   // int     good; Not using good because we exit whenever input is erroneous
