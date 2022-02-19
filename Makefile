@@ -16,7 +16,7 @@ logappend: logappend.o data.o crypto.o
 	$(CC) -g -o logappend logappend.o data.o crypto.o $(LFLAGS)
 
 logread: logread.o data.o 
-	$(CC) $(CFLAGS) -o logread logread.o data.o $(LFLAGS)
+	$(CC) $(CFLAGS) -o logread logread.o data.o crypto.o $(LFLAGS)
 	./postSrcCrypto.sh
 	
 logappend.o: logappend.c

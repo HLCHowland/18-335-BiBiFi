@@ -9,7 +9,7 @@
 #include <assert.h>
 
 #include "data.h"
-// #include "fileEncryptionTest.h"
+#include "crypto.h"
 
 char salt[] = "XXXXXXXXXXXXXXXXXXXX";
 char CTUID[] = "XXXXXXXXXXXXXXXXXXXX";
@@ -344,7 +344,7 @@ int main(int argc, char *argv[]) {
     }
     
     // Decrypt the logfile prior to reading
-    decrypt(logpath, token);
+    // decrypt(logpath, token);
 
     log_fp = fopen(logpath, "r");
     char *buf_r;
@@ -395,7 +395,7 @@ int main(int argc, char *argv[]) {
     struct Person *first;
     fclose(log_fp);
 
-    encrypt(logpath, token);
+    // encrypt(logpath, token);
 
     if(logpath!=NULL){
     if(print_S==true){
