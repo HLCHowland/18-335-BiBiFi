@@ -224,6 +224,7 @@ int main(int argc, char *argv[]) {
     int num_read;
     char batch_line[2048];
     char command_line[2100]; 
+    int verbose = 0;
   
     R = parse_cmdline(argc, argv, 0);
 
@@ -314,7 +315,7 @@ int main(int argc, char *argv[]) {
         // Deserialize one entry
         int entry_len = deserialize_int(buf_r);
         buf_r = realloc(buf_r, entry_len);
-        printf("entry len: %i\n", entry_len);
+        if (verbose) printf("entry len: %i\n", entry_len);
         memset(buf_r, 0, entry_len);
         num_read = fread(buf_r, 1, entry_len, log_fp);
         assert(num_read==entry_len && "num_read not equal to entry_len");
