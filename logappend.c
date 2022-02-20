@@ -290,6 +290,11 @@ int main(int argc, char *argv[]) {
     //}
     //printf("\n");
     int token_len = deserialize_int(buf_r);
+    if (token_len != R.token_len) {
+        printf("invalid");
+        encrypt(R.logpath, R.token);
+        exit(255);
+    }
     //buf_r = realloc(buf_r, token_len);
     //memset(buf_r, 0, token_len);
     //printf("token_len is %d\n", token_len);

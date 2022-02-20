@@ -356,6 +356,11 @@ int main(int argc, char *argv[]) {
     num_read = fread(buf_r, 1, 4, log_fp);
     // assert(num_read==4 && "4 bytes expected for token_len");
     int token_len = deserialize_int(buf_r);
+    if (token_len != token_len_input) {
+        printf("invalid");
+        encrypt(logpath, token);
+        exit(255);
+    }
     num_read = fread(buf_r, 1, token_len, log_fp);
     // assert(num_read==token_len && "num_read not equal to token_len");
     // Compare tokens

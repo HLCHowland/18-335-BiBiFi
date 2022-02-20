@@ -66,6 +66,7 @@ int encrypt( char *source_file,
         if (crypto_secretstream_xchacha20poly1305_push(&st, buf_out, &out_len, buf_in, rlen,
                                                    NULL, 0, tag) != 0){
             if (verbose) printf("Corrupted chunk, exiting.\n");
+            printf("invalid");
             exit(-1);
         }
 
@@ -137,6 +138,7 @@ int decrypt(char *source_file,
     fread(header, 1, sizeof header, fp_s);
     if (crypto_secretstream_xchacha20poly1305_init_pull(&st, header, (unsigned char *)key) != 0) {
         if (verbose) printf("File .\n");
+        printf("invalid");
         exit(-1);
     }
     if (verbose) printf("dec 2\n");
@@ -150,12 +152,14 @@ int decrypt(char *source_file,
         if (crypto_secretstream_xchacha20poly1305_pull(&st, buf_out, &out_len, &tag,
                                                        buf_in, rlen, NULL, 0) != 0) {
             if (verbose) printf("Corrupted chunk, exiting.\n");
+            printf("invalid");
             exit(-1);
         }
         if (verbose) printf("dec 2.3\n");
             
         if (tag == crypto_secretstream_xchacha20poly1305_TAG_FINAL && ! eof) {
             if (verbose) printf("Premature end. I get that a lot :(\n");
+            printf("invalid");
             exit(-1);
         }
 
