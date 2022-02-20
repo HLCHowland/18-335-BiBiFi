@@ -10,9 +10,10 @@
 
 
 #include "data.h"
+#include "crypto.h"
 
-char salt[] = "XXXXXXXXXXXXXXXXXXXX";
-char CTUID[] = "XXXXXXXXXXXXXXXXXXXX";
+char salt[] = "IlkasmZnMRI7033BV6B2";
+char CTUID[] = "ggDUJJmivHQtJrUyeIIR";
 
 int verbose = 0;
 
@@ -345,15 +346,18 @@ int main(int argc, char *argv[]) {
       printf("invalid\n");
       exit(255);
     }
-    // printf("Opening existing logfile.\n");
+    
+    // Decrypt the logfile prior to reading
+    decrypt(logpath, token);
+
     log_fp = fopen(logpath, "r");
     char *buf_r;
     buf_r = malloc(4);
     num_read = fread(buf_r, 1, 4, log_fp);
-    assert(num_read==4 && "4 bytes expected for token_len");
+    // assert(num_read==4 && "4 bytes expected for token_len");
     int token_len = deserialize_int(buf_r);
     num_read = fread(buf_r, 1, token_len, log_fp);
-    assert(num_read==token_len && "num_read not equal to token_len");
+    // assert(num_read==token_len && "num_read not equal to token_len");
     // Compare tokens
     if (strcmp(buf_r, token) != 0) {
         printf("invalid");
@@ -369,13 +373,13 @@ int main(int argc, char *argv[]) {
     buf_r = realloc(buf_r, 4);
     num_read = fread(buf_r, 1, 4, log_fp);
     while (num_read != 0) {
-        assert(num_read==4 && "4 bytes expected for entry_len");
+        // assert(num_read==4 && "4 bytes expected for entry_len");
         // Deserialize one entry
         int entry_len = deserialize_int(buf_r);
         buf_r = realloc(buf_r, entry_len);
         memset(buf_r, 0, entry_len);
         num_read = fread(buf_r, 1, entry_len, log_fp);
-        assert(num_read==entry_len && "num_read not equal to entry_len");
+        // assert(num_read==entry_len && "num_read not equal to entry_len");
         LogEntry L;
         buf_to_logentry(&L, buf_r, entry_len);
         // Check match and update person's location
@@ -394,6 +398,9 @@ int main(int argc, char *argv[]) {
     // Forth step: Print the information we want
     struct Person *first = NULL;
     fclose(log_fp);
+
+    encrypt(logpath, token);
+
     if(logpath!=NULL){
     if(print_S==true){
       print_summary(first, head);

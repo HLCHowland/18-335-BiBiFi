@@ -4,16 +4,20 @@ CFLAGS=-g -Wall
 
 # Add any libraries you want to include here via: -lthe_library_name
 LFLAGS=
+LFLAGS= -lsodium -lm -Wall
 
 # Add source code files into the list
-SRC=brg_types.h data.c data.h logappend.c logread.c Makefile prepSrcCrypto.sh postSrcCrypto.sh
+SRC=brg_types.h data.c data.h crypto.c crypto.h logappend.c logread.c prepSrcCrypto.sh postSrcCrypto.sh Makefile
 
-logappend: logappend.o data.o
+crypto.o: crypto.c
+	$(CC) -g -c -o crypto.o crypto.c $(LFLAGS)
+
+logappend: logappend.o data.o crypto.o
 	./prepSrcCrypto.sh
-	$(CC) $(CFLAGS) -o logappend logappend.o data.o $(LFLAGS)
+	$(CC) -g -o logappend logappend.o data.o crypto.o $(LFLAGS)
 
-logread: logread.o data.o
-	$(CC) $(CFLAGS) -o logread logread.o data.o $(LFLAGS)
+logread: logread.o data.o 
+	$(CC) $(CFLAGS) -o logread logread.o data.o crypto.o $(LFLAGS)
 	./postSrcCrypto.sh
 	
 logappend.o: logappend.c
