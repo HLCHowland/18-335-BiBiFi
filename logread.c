@@ -12,8 +12,8 @@
 #include "data.h"
 #include "crypto.h"
 
-char salt[] = "IlkasmZnMRI7033BV6B2";
-char CTUID[] = "ggDUJJmivHQtJrUyeIIR";
+char salt[] = "XXXXXXXXXXXXXXXXXXXX";
+char CTUID[] = "XXXXXXXXXXXXXXXXXXXX";
 
 int verbose = 0;
 
