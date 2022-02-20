@@ -82,7 +82,6 @@ CmdLineResult parse_cmdline(int argc, char *argv[], int is_batch) {
         // Error out on duplicate flags
         if (ALchecked == true) {
             printf("invalid\n");
-            encrypt(R.logpath, R.token);
             exit(255);
         }
         ALchecked = true;
@@ -96,7 +95,6 @@ CmdLineResult parse_cmdline(int argc, char *argv[], int is_batch) {
         // Error out on duplicate flags
         if (ALchecked == true) {
             printf("invalid\n");
-            encrypt(R.logpath, R.token);
             exit(255);
         }
         ALchecked = true;
@@ -114,7 +112,6 @@ CmdLineResult parse_cmdline(int argc, char *argv[], int is_batch) {
         // Error out on duplicate flags
         if (EGchecked == true) {
             printf("invalid\n");
-            encrypt(R.logpath, R.token);
             exit(255);
         }
         EGchecked = true;
@@ -132,7 +129,6 @@ CmdLineResult parse_cmdline(int argc, char *argv[], int is_batch) {
         // Error out on duplicate flags
         if (EGchecked == true) {
             printf("invalid\n");
-            encrypt(R.logpath, R.token);
             exit(255);
         }
         EGchecked = true;
@@ -165,7 +161,6 @@ CmdLineResult parse_cmdline(int argc, char *argv[], int is_batch) {
     // No other flags if doing batching
     if (nonbatch==true) {
         printf("invalid\n");
-        encrypt(R.logpath, R.token);
         exit(255);
     }
   }
@@ -174,28 +169,24 @@ CmdLineResult parse_cmdline(int argc, char *argv[], int is_batch) {
     // timestamp required
     if (R.ts==-1) {
         printf("invalid\n");
-        encrypt(R.logpath, R.token);
         exit(255);
     }
 
     // token required
     if (R.token==NULL) {
         printf("invalid\n");
-        encrypt(R.logpath, R.token);
         exit(255);
     }
 
     // log file required
     if (R.logpath==NULL) {
         printf("invalid\n");
-        encrypt(R.logpath, R.token);
         exit(255);
     }
 
     // Require both E/G and A/L
     if (!EGchecked || !ALchecked) {
         printf("invalid\n");
-        encrypt(R.logpath, R.token);
         exit(255);
     }
   }
@@ -241,7 +232,6 @@ int main(int argc, char *argv[]) {
         batch_fp = fopen(R.batchpath, "r");
         if (batch_fp == NULL) {
             printf("invalid\n");
-            encrypt(R.logpath, R.token);
             exit(255);
         }
         memset(batch_line, 0, 2048);
@@ -292,7 +282,7 @@ int main(int argc, char *argv[]) {
     char *buf_r;
     buf_r = malloc(4);
     num_read = fread(buf_r, 1, 4, log_fp);
-    // assert(num_read==4 && "4 bytes expected for token_len");
+    assert(num_read==4 && "4 bytes expected for token_len");
     //printf("Printing buf_r, length of %d:\n", 4);
     //for (i=0; i<4; i++) {
     //    printf("%d ",buf_r[i]);
@@ -303,11 +293,10 @@ int main(int argc, char *argv[]) {
     //memset(buf_r, 0, token_len);
     //printf("token_len is %d\n", token_len);
     num_read = fread(buf_r, 1, token_len, log_fp);
-    // assert(num_read==token_len && "num_read not equal to token_len");
+    assert(num_read==token_len && "num_read not equal to token_len");
     // Compare tokens
     if (strcmp(buf_r, R.token) != 0) {
         printf("invalid");
-        encrypt(R.logpath, R.token);
         exit(255);
     }
 
@@ -320,13 +309,14 @@ int main(int argc, char *argv[]) {
     // printf("num_read is %d\n", num_read);
     int last_ts = -1;
     while (num_read != 0) {
-        // assert(num_read==4 && "4 bytes expected for entry_len");
+        assert(num_read==4 && "4 bytes expected for entry_len");
         // Deserialize one entry
         int entry_len = deserialize_int(buf_r);
         buf_r = realloc(buf_r, entry_len);
+        printf("entry len: %i\n", entry_len);
         memset(buf_r, 0, entry_len);
         num_read = fread(buf_r, 1, entry_len, log_fp);
-        // assert(num_read==entry_len && "num_read not equal to entry_len");
+        assert(num_read==entry_len && "num_read not equal to entry_len");
         LogEntry L;
         buf_to_logentry(&L, buf_r, entry_len);
         //print_logentry(L);
@@ -362,14 +352,14 @@ int main(int argc, char *argv[]) {
             // Person already in gallery entering again
             printf("invalid\n");
             // printf("Person already in gallery.\n");
-            encrypt(R.logpath, R.token);
+            
             exit(255);
         }
         if (R.roomID>=0 && current_location!=-1) {
             // Person not in gallery lobby entering room
             printf("invalid\n");
             // printf("Person not in gallery lobby.\n");
-            encrypt(R.logpath, R.token);
+            
             exit(255);
         }
     } else {
@@ -377,13 +367,13 @@ int main(int argc, char *argv[]) {
             // Person leaving not current location
             printf("invalid\n");
             // printf("Person not leaving current location.\n");
-            encrypt(R.logpath, R.token);
+            
             exit(255);
         }
     }
     if (R.ts < last_ts) {
         printf("invalid\n");
-        encrypt(R.logpath, R.token);
+        
         // printf("Timestamp lower than latest in log.\n");
         exit(255);
     }
