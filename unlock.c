@@ -12,8 +12,8 @@
 #include "data.h"
 #include "crypto.h"
 
-char salt[] = "XXXXXXXXXXXXXXXXXXXX";
-char CTUID[] = "XXXXXXXXXXXXXXXXXXXX";
+char salt[] = "IlkasmZnMRI7033BV6B2";
+char CTUID[] = "ggDUJJmivHQtJrUyeIIR";
 
 int verbose = 0;
 
@@ -348,69 +348,7 @@ int main(int argc, char *argv[]) {
     }
     
     // Decrypt the logfile prior to reading
-    // decrypt(logpath, token);
-
-    log_fp = fopen(logpath, "r");
-    char *buf_r;
-    buf_r = malloc(4);
-    num_read = fread(buf_r, 1, 4, log_fp);
-    assert(num_read==4 && "4 bytes expected for token_len");
-    int token_len = deserialize_int(buf_r);
-    num_read = fread(buf_r, 1, token_len, log_fp);
-    assert(num_read==token_len && "num_read not equal to token_len");
-    // Compare tokens
-    if (strcmp(buf_r, token) != 0) {
-        printf("invalid");
-        exit(255);
-    }
-
-    // Third step: Read through the logentry, execute log entry one by one
-
-    // -2=not in gallery, -1=in gallery, 0-1073741823=in room
-    struct slisthead head = SLIST_HEAD_INITIALIZER(head);
-    // Record the time the program has executed
-    int timenow = 0;
-    buf_r = realloc(buf_r, 4);
-    num_read = fread(buf_r, 1, 4, log_fp);
-    while (num_read != 0) {
-        assert(num_read==4 && "4 bytes expected for entry_len");
-        // Deserialize one entry
-        int entry_len = deserialize_int(buf_r);
-        buf_r = realloc(buf_r, entry_len);
-        memset(buf_r, 0, entry_len);
-        num_read = fread(buf_r, 1, entry_len, log_fp);
-        assert(num_read==entry_len && "num_read not equal to entry_len");
-        LogEntry L;
-        buf_to_logentry(&L, buf_r, entry_len);
-        // Check match and update person's location
-        if(L.is_arrival==true){
-          arrive_action(&head,L,&timenow);
-          }
-        else {
-          leave_action(&head,L,&timenow);
-          }
-        free(L.name);
-        // Read next entry
-        buf_r = realloc(buf_r, 4);
-        num_read = fread(buf_r, 1, 4, log_fp);
-    }
-    
-    // Forth step: Print the information we want
-    struct Person *first = NULL;
-    fclose(log_fp);
-
-    // encrypt(logpath, token);
-
-    if(logpath!=NULL){
-    if(print_S==true){
-      print_summary(first, head);
-    }
-    if((print_R==true) && (name!=NULL))
-      print_rooms(first, head, name, is_employee);
-    if((print_T==true) && (name!=NULL))
-      print_time(first, head, name, is_employee,timenow);
-  }
-
+    decrypt(logpath, token);
   return 0;
 }
 

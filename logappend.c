@@ -269,20 +269,20 @@ int main(int argc, char *argv[]) {
         fwrite(token_len_str, 1, 4, log_fp);
         fwrite(R.token, 1, R.token_len, log_fp);
         fclose(log_fp);
-        encrypt(R.logpath, R.token);
+        // encrypt(R.logpath, R.token);
     }
 
 
 
     // Second step: check if token matches the one in existing log
-    decrypt(R.logpath, R.token);
+    // decrypt(R.logpath, R.token);
 
     // Open log read-only
     log_fp = fopen(R.logpath, "r");
     char *buf_r;
     buf_r = malloc(4);
     num_read = fread(buf_r, 1, 4, log_fp);
-    // assert(num_read==4 && "4 bytes expected for token_len");
+    assert(num_read==4 && "4 bytes expected for token_len");
     //printf("Printing buf_r, length of %d:\n", 4);
     //for (i=0; i<4; i++) {
     //    printf("%d ",buf_r[i]);
@@ -293,7 +293,7 @@ int main(int argc, char *argv[]) {
     //memset(buf_r, 0, token_len);
     //printf("token_len is %d\n", token_len);
     num_read = fread(buf_r, 1, token_len, log_fp);
-    // assert(num_read==token_len && "num_read not equal to token_len");
+    assert(num_read==token_len && "num_read not equal to token_len");
     // Compare tokens
     if (strcmp(buf_r, R.token) != 0) {
         printf("invalid");
@@ -309,13 +309,13 @@ int main(int argc, char *argv[]) {
     // printf("num_read is %d\n", num_read);
     int last_ts = -1;
     while (num_read != 0) {
-        // assert(num_read==4 && "4 bytes expected for entry_len");
+        assert(num_read==4 && "4 bytes expected for entry_len");
         // Deserialize one entry
         int entry_len = deserialize_int(buf_r);
         buf_r = realloc(buf_r, entry_len);
         memset(buf_r, 0, entry_len);
         num_read = fread(buf_r, 1, entry_len, log_fp);
-        // assert(num_read==entry_len && "num_read not equal to entry_len");
+        assert(num_read==entry_len && "num_read not equal to entry_len");
         LogEntry L;
         buf_to_logentry(&L, buf_r, entry_len);
         //print_logentry(L);
@@ -375,10 +375,10 @@ int main(int argc, char *argv[]) {
     fclose(log_fp);
 
     // Final step: add command line as a new log entry
-    encrypt(R.logpath, R.token);
+    // encrypt(R.logpath, R.token);
 
     // Final step: add command line as a new log entry
-    decrypt(R.logpath, R.token);
+    // decrypt(R.logpath, R.token);
     log_fp = fopen(R.logpath, "a");
     char *buf;
     int buf_len;
@@ -393,7 +393,7 @@ int main(int argc, char *argv[]) {
     fwrite(buf, 1, buf_len, log_fp);
     fclose(log_fp);
     free(buf);
-    encrypt(R.logpath, R.token);
+    // encrypt(R.logpath, R.token);
     
         
 
