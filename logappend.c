@@ -297,6 +297,7 @@ int main(int argc, char *argv[]) {
     // Compare tokens
     if (strcmp(buf_r, R.token) != 0) {
         printf("invalid");
+        encrypt(R.logpath, R.token);
         exit(255);
     }
 
@@ -352,14 +353,14 @@ int main(int argc, char *argv[]) {
             // Person already in gallery entering again
             printf("invalid\n");
             // printf("Person already in gallery.\n");
-            
+            encrypt(R.logpath, R.token);
             exit(255);
         }
         if (R.roomID>=0 && current_location!=-1) {
             // Person not in gallery lobby entering room
             printf("invalid\n");
             // printf("Person not in gallery lobby.\n");
-            
+            encrypt(R.logpath, R.token);
             exit(255);
         }
     } else {
@@ -367,13 +368,13 @@ int main(int argc, char *argv[]) {
             // Person leaving not current location
             printf("invalid\n");
             // printf("Person not leaving current location.\n");
-            
+            encrypt(R.logpath, R.token);
             exit(255);
         }
     }
     if (R.ts < last_ts) {
         printf("invalid\n");
-        
+        encrypt(R.logpath, R.token);
         // printf("Timestamp lower than latest in log.\n");
         exit(255);
     }
