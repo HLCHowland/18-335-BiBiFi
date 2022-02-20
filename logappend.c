@@ -381,10 +381,8 @@ int main(int argc, char *argv[]) {
     fclose(log_fp);
 
     // Final step: add command line as a new log entry
-    encrypt(R.logpath, R.token);
 
     // Final step: add command line as a new log entry
-    decrypt(R.logpath, R.token);
     log_fp = fopen(R.logpath, "a");
     char *buf;
     int buf_len;
