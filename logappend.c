@@ -58,17 +58,17 @@ CmdLineResult parse_cmdline(int argc, char *argv[], int is_batch) {
         batchpath = malloc(batchpath_len);
         memcpy(batchpath, optarg, batchpath_len);
         R.batchpath = batchpath;
-	    break;  
+        break;  
 
       case 'T':
-	    //timestamp
-	    R.ts = atoi(optarg);
+        //timestamp
+        R.ts = atoi(optarg);
         nonbatch= true;
         break;
 
       case 'K':
-	    //secret token
-	    R.token_len = strlen(optarg) + 1;
+        //secret token
+        R.token_len = strlen(optarg) + 1;
         token = malloc(R.token_len);
         memcpy(token, optarg, R.token_len);
         R.token = token;
@@ -133,7 +133,7 @@ CmdLineResult parse_cmdline(int argc, char *argv[], int is_batch) {
         }
         EGchecked = true;
         nonbatch= true;
-	    break;
+        break;
 
       case 'R':
         //room ID
@@ -297,7 +297,6 @@ int main(int argc, char *argv[]) {
     // Compare tokens
     if (strcmp(buf_r, R.token) != 0) {
         printf("invalid");
-        encrypt(R.logpath, R.token);
         exit(255);
     }
 
@@ -352,13 +351,11 @@ int main(int argc, char *argv[]) {
             // Person already in gallery entering again
             printf("invalid\n");
             // printf("Person already in gallery.\n");
-            encrypt(R.logpath, R.token);
             exit(255);
         }
         if (R.roomID>=0 && current_location!=-1) {
             // Person not in gallery lobby entering room
             printf("invalid\n");
-            encrypt(R.logpath, R.token);
             // printf("Person not in gallery lobby.\n");
             exit(255);
         }
@@ -366,14 +363,12 @@ int main(int argc, char *argv[]) {
         if (R.roomID != current_location) {
             // Person leaving not current location
             printf("invalid\n");
-            encrypt(R.logpath, R.token);
             // printf("Person not leaving current location.\n");
             exit(255);
         }
     }
     if (R.ts < last_ts) {
         printf("invalid\n");
-        encrypt(R.logpath, R.token);
         // printf("Timestamp lower than latest in log.\n");
         exit(255);
     }
@@ -401,6 +396,15 @@ int main(int argc, char *argv[]) {
     encrypt(R.logpath, R.token);
     
         
+
+  //if(R.good == 0) {
+    //Buffer  B = read_from_path(/** stuff **/);
+
+    //TODO do things here.
+    
+    //write the result back out to the file
+    //write_to_path(/** stuff **/);
+  //}
 
   return 0;
 }

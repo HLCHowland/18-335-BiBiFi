@@ -302,7 +302,7 @@ int main(int argc, char *argv[]) {
             exit(255);
         }
         EGchecked = true;
-	    break;
+        break;
     }
   }
 
@@ -361,7 +361,6 @@ int main(int argc, char *argv[]) {
     // Compare tokens
     if (strcmp(buf_r, token) != 0) {
         printf("invalid");
-        encrypt(logpath, token);
         exit(255);
     }
 

@@ -40,8 +40,8 @@ int encrypt(char *source_file,
     encrypted_buffer_size = (CRYPTO_HEADER_SIZE + (total_chunks * CRYPTO_ABYTE_SIZE) + file_size);
 
     // Add null byte to end of string
-    mem_file = malloc(encrypted_buffer_size);
-    memset( mem_file, '\0', encrypted_buffer_size);
+    mem_file = malloc(encrypted_buffer_size + 1);
+    memset( mem_file, '\0', encrypted_buffer_size + 1);
 
     fp_s = fopen(source_file, "rb");
     crypto_secretstream_xchacha20poly1305_init_push(&st, header, (unsigned char*) key);
@@ -57,6 +57,8 @@ int encrypt(char *source_file,
         tag = eof ? crypto_secretstream_xchacha20poly1305_TAG_FINAL : 0;
         if (crypto_secretstream_xchacha20poly1305_push(&st, buf_out, &out_len, buf_in, rlen,
                                                    NULL, 0, tag) != 0){
+            // printf("Corrupted chunk, exiting.\n");
+            // exit(-1);
             printf("invalid\n");
             exit(255);
         }
@@ -96,7 +98,7 @@ int decrypt(char *source_file,
     fp_s = fopen(source_file, "rb");
     fseek(fp_s, 0L, SEEK_END);
     file_size = ftell(fp_s);
-    fclose(fp_s);  
+    fclose(fp_s);    
     total_chunks = (double)file_size/(double)CHUNK_SIZE;
 
     // If total_chunks is a fraction, that means we will need to account for an additional chunk
@@ -107,6 +109,7 @@ int decrypt(char *source_file,
     // Decrypted buff size calc
     int decrypted_buffer_size = 0;
     decrypted_buffer_size = ((file_size) - (total_chunks * CRYPTO_ABYTE_SIZE) - CRYPTO_HEADER_SIZE);
+    // printf("\n\nDecrypted Buff Vars\nfile_size: %i\ncrypto data size: %i\n     total_chunks: %f\n     ABYTE: %d\ncrypto header size: %d\n", file_size, (1 * CRYPTO_ABYTE_SIZE),total_chunks, CRYPTO_ABYTE_SIZE, CRYPTO_HEADER_SIZE);
     
     // Add null byte to end of string
     mem_file = malloc(decrypted_buffer_size + 1);
@@ -115,9 +118,10 @@ int decrypt(char *source_file,
 
     fp_s = fopen(source_file, "rb");    
     fread(header, 1, sizeof header, fp_s);
-    // Id this triggers it means the header either was not there or was tampered with
     if (crypto_secretstream_xchacha20poly1305_init_pull(&st, header, (unsigned char*) key) != 0) {
-        printf("integrity violation\n");
+        // printf("File header error, exiting.\n");
+        // exit(-1);
+        printf("invalid\n");
         exit(255);
     }
     
@@ -125,16 +129,19 @@ int decrypt(char *source_file,
     do {
         rlen = fread(buf_in, 1, sizeof buf_in, fp_s);
         eof = feof(fp_s);
-        // Someone tried to modify the file, or they had the wrong key
         if (crypto_secretstream_xchacha20poly1305_pull(&st, buf_out, &out_len, &tag,
                                                        buf_in, rlen, NULL, 0) != 0) {
-            printf("integrity violation\n");
+            // printf("Corrupted chunk, exiting.\n");
+            // exit(-1);
+            printf("invalid\n");
             exit(255);
-        }
 
-        // Someone tried to append something to the file
+        }
+            
         if (tag == crypto_secretstream_xchacha20poly1305_TAG_FINAL && ! eof) {
-            printf("integrity violation\n");
+            // printf("Premature end. I get that a lot :(\n");
+            // exit(-1);
+            printf("invalid\n");
             exit(255);
         }
 
@@ -151,3 +158,21 @@ int decrypt(char *source_file,
 
     return 0;
 }
+
+// int main(void)
+// {
+//     // unsigned char key[crypto_secretstream_xchacha20poly1305_KEYBYTES];
+//     if (sodium_init() != 0) {
+//         return 1;
+//     }
+//     // crypto_secretstream_xchacha20poly1305_keygen(key);
+//     unsigned char key[] = "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm";
+//     if (encrypt("./testFileSmall", key) != 0) {
+//         return 1;
+//     }
+//     if (decrypt( "./testFileSmall", key) != 0) {
+//         return 1;
+//     }
+//     return 0;
+// }
+
