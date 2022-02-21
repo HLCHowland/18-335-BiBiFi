@@ -34,8 +34,6 @@ struct Person {
   int roomnow;
   int roomnumber;
   int *roomrecord;
-  int totaltime;
-  int entertime;
   SLIST_ENTRY(Person)   link;
 };
 
@@ -48,11 +46,6 @@ static int strCompare(const void* a, const void* b)
     // setting up rules for comparison
     return strcmp(*(char**)a, *(char**)b);
 }
-
-bool onlyOnetrue(bool one, bool two, bool three){
-  return (one && !two && !three)||(!one && two && !three)||(!one && !two && three);
-}
-
 static int intCompare(const void* a, const void* b)
 {
   
@@ -75,17 +68,14 @@ void sorti(int arr[], int n)
     qsort(arr, n, sizeof(int), intCompare);
 }
 
-void leave_action(struct slisthead *head, LogEntry L, int *timenow) {
-    struct Person *current;
-    *timenow = L.ts; 
+void leave_action(struct slisthead *head, char *name, bool is_employee, int roomPresent) {
+    struct Person *current; 
     SLIST_FOREACH(current, head, link) {
         //Find the person
-        if(strcmp(current->name,L.name)==0 && current->is_employee==L.is_employee){
+        if(strcmp(current->name,name)==0 && current->is_employee==is_employee){
             //Is the person in gallery?
             if(current->roomnow == -1){
                 current->roomnow=-2;
-                current->totaltime = current->totaltime + L.ts - current->entertime;
-                current->entertime = -1;
             }
             else {
                 current->roomnow=-1;
@@ -94,19 +84,15 @@ void leave_action(struct slisthead *head, LogEntry L, int *timenow) {
     }
 }
 
-void arrive_action(struct slisthead *head, LogEntry L, int *timenow) {
+void arrive_action(struct slisthead *head, char *name, bool is_employee, int roomPresent) {
     struct Person *current;
-    *timenow = L.ts;
     // Check if person is already in the list
     SLIST_FOREACH(current, head, link) {
-        if(strcmp(current->name,L.name)==0 && current->is_employee==L.is_employee){
-            current->roomnow=L.roomID;
+        if(strcmp(current->name,name)==0 && current->is_employee==is_employee){
+            current->roomnow=roomPresent;
             current->roomrecord = realloc(current->roomrecord,(current->roomnumber+2)*sizeof(int));
-            current->roomrecord[current->roomnumber]=L.roomID;
+            current->roomrecord[current->roomnumber]=roomPresent;
             current->roomnumber++;
-            if(L.roomID == -1){
-              current->entertime = L.ts;
-            }
             return;
         }
     }
@@ -114,31 +100,14 @@ void arrive_action(struct slisthead *head, LogEntry L, int *timenow) {
     // Add person to the list if not found above
     current=malloc(sizeof(struct Person));
     SLIST_INSERT_HEAD(head, current, link);
-    current->roomnow=L.roomID;
-    current->is_employee=L.is_employee;
-    current->name=(char*) malloc((strlen(L.name)+1)*sizeof(char));
-    strcpy(current->name,L.name);
-    current->roomnumber = 0;
-    current->totaltime = 0;
-    current->entertime = L.ts;
+    current->roomnow=roomPresent;
+    current->is_employee=is_employee;
+    current->name=(char*) malloc((strlen(name)+1)*sizeof(char));
+    strcpy(current->name,name);
+    current->roomnumber=0;
 }
 
-void print_time(struct Person *first, struct slisthead head, char *name, bool is_employee, int timenow){
-    int totaltime;
-    SLIST_FOREACH(first, &head, link){
-        if(strcmp(first->name,name)==0 && first->is_employee==is_employee){
-            if(first->entertime == -1){
-              totaltime = first->totaltime;
-              printf("%i\n",totaltime);
-            }
-            else{
-              totaltime = timenow - first->entertime +first->totaltime;
-              printf("%i\n",totaltime);
-            }
-            return;
-        }
-    }        
-}
+
 void print_rooms(struct Person *first, struct slisthead head, char *name, bool is_employee) {
     int i;
     SLIST_FOREACH(first, &head, link){
@@ -242,7 +211,6 @@ int main(int argc, char *argv[]) {
   int name_len = 0;
   bool print_S = false;
   bool print_R = false;
-  bool print_T = false;
   bool is_employee = false;
   char* logpath = NULL;
   int logpath_len = 0;
@@ -267,7 +235,8 @@ int main(int argc, char *argv[]) {
         break;
 
       case 'T':
-        print_T = true; 
+        printf("unimplemented");
+        exit(255); 
         break;
 
       case 'I':
@@ -318,25 +287,21 @@ int main(int argc, char *argv[]) {
   }
 
 //Double check commandline
-  // Only one -S -R and -T commend
-  if(!onlyOnetrue(print_S,print_R,print_T)){
+  // -S and -R can't be present together
+  if(print_S && print_R){
     printf("invalid");
     exit(255);
   }
-
-   
-
+  // One of -S or -R must be present
+  if(!print_S && !print_R){
+    printf("invalid");
+    exit(255);
+  }
   // -R needs a guest or employee's name
   if(print_R && !EGchecked){
     printf("invalid");
     exit(255);    
   }  
-
-  // -T needs a guest or employee's name
-  if(print_T && !EGchecked){
-    printf("invalid");
-    exit(255);    
-  }
 
 //Second step: check if token matches the one in existing log
     FILE *log_fp;
@@ -374,8 +339,6 @@ int main(int argc, char *argv[]) {
 
     // -2=not in gallery, -1=in gallery, 0-1073741823=in room
     struct slisthead head = SLIST_HEAD_INITIALIZER(head);
-    // Record the time the program has executed
-    int timenow = 0;
     buf_r = realloc(buf_r, 4);
     num_read = fread(buf_r, 1, 4, log_fp);
     while (num_read != 0) {
@@ -390,10 +353,10 @@ int main(int argc, char *argv[]) {
         buf_to_logentry(&L, buf_r, entry_len);
         // Check match and update person's location
         if(L.is_arrival==true){
-          arrive_action(&head,L,&timenow);
+          arrive_action(&head,L.name,L.is_employee,L.roomID);
           }
         else {
-          leave_action(&head,L,&timenow);
+          leave_action(&head,L.name,L.is_employee,L.roomID);
           }
         free(L.name);
         // Read next entry
@@ -413,8 +376,6 @@ int main(int argc, char *argv[]) {
     }
     if((print_R==true) && (name!=NULL))
       print_rooms(first, head, name, is_employee);
-    if((print_T==true) && (name!=NULL))
-      print_time(first, head, name, is_employee,timenow);
   }
 
   return 0;
