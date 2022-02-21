@@ -128,20 +128,25 @@ void print_rooms(struct Person *first, struct slisthead head, char *name, bool i
 
 void print_summary(struct Person *first, struct slisthead head) {
     int totalroom = 0;
-    int roomlist[100];
+    int *roomlist;
     int i, j;
     bool is_newroom = true;
-    char * arrE[100];
-    char * arrG[100];
+    char ** arrE;
+    char ** arrG;
     int kE = 0;
     int kG = 0;
+    arrE = malloc(sizeof(char *));
+    arrG = malloc(sizeof(char *));
+    roomlist = malloc(sizeof(int));
     SLIST_FOREACH(first, &head, link){
         if (first->roomnow>=-1) {
             if (first->is_employee) {
+                arrE =realloc(arrE, (kE+1)*sizeof(char *));
                 arrE[kE]=malloc(strlen(first->name)+1);
                 strcpy(arrE[kE],first->name);
                 kE++;
             } else {
+                arrG =realloc(arrG, (kG+1)*sizeof(char *));
                 arrG[kG]=malloc(strlen(first->name)+1);
                 strcpy(arrG[kG],first->name);
                 kG++;
@@ -150,6 +155,7 @@ void print_summary(struct Person *first, struct slisthead head) {
             // Update a list of rooms
             if (first->roomnow>=0) {
                 is_newroom = true;
+                roomlist = realloc(roomlist,(totalroom)*sizeof(int));
                 for(i = 0;i < totalroom; i++) {
                   if(first->roomnow==roomlist[i]) is_newroom=false;
                 }
