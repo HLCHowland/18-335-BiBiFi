@@ -8,7 +8,11 @@ def start(lognum):
 
     for i in range(lognum):
         print(i + 1)
-        os.system("./logappend -T " + str(i + 1) + " -K secret -A -G " + str(i + 1) + " log1")
+        # os.system("./logappend  -T " + str(i + 1) + " -K mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm -A -G " + str(i + 1) + " log1")
+        os.system("./logappend  -T " + str(i + 1) + " -K secret -A -G " + str(i + 1) + " log1")
+
+    print("Unlocking...")
+    os.system("./unlock -K secret -T -G Jill log1")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Description of your program')
