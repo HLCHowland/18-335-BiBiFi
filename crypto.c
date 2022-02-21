@@ -181,7 +181,7 @@ int decrypt(char *source_file,
         memcpy(&mem_file[file_offset], &buf_out, (size_t) out_len);
         if (verbose) printf("dec 2.5 outlen %llu offset %i\n", out_len, file_offset);
         
-        file_offset = file_offset + (size_t) out_len + 1;
+        file_offset = file_offset + (size_t) out_len;
         if (verbose) printf("dec 2.7\n");
             
 
