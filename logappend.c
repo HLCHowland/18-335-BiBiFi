@@ -365,7 +365,6 @@ int main(int argc, char *argv[]) {
         if (R.roomID>=0 && current_location!=-1) {
             // Person not in gallery lobby entering room
             printf("invalid\n");
-            encrypt(R.logpath, R.token);
             // printf("Person not in gallery lobby.\n");
             encrypt(R.logpath, R.token);
             exit(255);
@@ -374,7 +373,6 @@ int main(int argc, char *argv[]) {
         if (R.roomID != current_location) {
             // Person leaving not current location
             printf("invalid\n");
-            encrypt(R.logpath, R.token);
             // printf("Person not leaving current location.\n");
             encrypt(R.logpath, R.token);
             exit(255);

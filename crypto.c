@@ -21,8 +21,7 @@ int encrypt(char *source_file,
     int file_size = 0;
     char *mem_file;
     double total_chunks = 0;
-    int verbose = 0;
-
+    
     // Gets file size and crypto chunks for buff size calc
     fp_s = fopen(source_file, "rb");
     fseek(fp_s, 0L, SEEK_END);
@@ -41,8 +40,10 @@ int encrypt(char *source_file,
     encrypted_buffer_size = (CRYPTO_HEADER_SIZE + (total_chunks * CRYPTO_ABYTE_SIZE) + file_size);
 
     // Add null byte to end of string
-    mem_file = malloc(encrypted_buffer_size);
-    memset( mem_file, '\0', encrypted_buffer_size);
+    // mem_file = malloc(encrypted_buffer_size);
+    // memset( mem_file, '\0', encrypted_buffer_size);
+    mem_file = malloc(encrypted_buffer_size + 1);
+    memset( mem_file, '\0', encrypted_buffer_size + 1);
 
     fp_s = fopen(source_file, "rb");
     crypto_secretstream_xchacha20poly1305_init_push(&st, header, (unsigned char*) key);
@@ -50,7 +51,6 @@ int encrypt(char *source_file,
     // Write header into the buffer, increment offset
     memcpy(&mem_file[file_offset], &header, sizeof header);
     file_offset = sizeof header;
-    if (verbose) printf("enc 3\n");
 
     // Read file, encrypt, add to buffer
     do {
@@ -94,9 +94,7 @@ int decrypt(char *source_file,
     int file_size = 0;
     char *mem_file;
     double total_chunks = 0;
-    int verbose = 0;
 
-    if (verbose) printf("enc 0\n");
     // Gets file size and crypto chunks for buff size calc
     fp_s = fopen(source_file, "rb");
     fseek(fp_s, 0L, SEEK_END);
@@ -125,8 +123,6 @@ int decrypt(char *source_file,
         exit(255);
     }
   
-    int i = 0;
-    int tokenLen = 0;
     // Read file, decrypt, add to buffer
     do {
         rlen = fread(buf_in, 1, sizeof buf_in, fp_s);
