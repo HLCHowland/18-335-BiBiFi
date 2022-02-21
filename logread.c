@@ -12,8 +12,8 @@
 #include "data.h"
 #include "crypto.h"
 
-char salt[] = "IlkasmZnMRI7033BV6B2";
-char CTUID[] = "ggDUJJmivHQtJrUyeIIR";
+char salt[] = "XXXXXXXXXXXXXXXXXXXX";
+char CTUID[] = "XXXXXXXXXXXXXXXXXXXX";
 
 int verbose = 0;
 
@@ -361,6 +361,7 @@ int main(int argc, char *argv[]) {
     // Compare tokens
     if (strcmp(buf_r, token) != 0) {
         printf("invalid");
+        encrypt(logpath, token);
         exit(255);
     }
 
