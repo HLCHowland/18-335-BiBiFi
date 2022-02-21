@@ -40,7 +40,7 @@ int encrypt(const char *source_file,
     encrypted_buffer_size = (CRYPTO_HEADER_SIZE + (total_chunks * CRYPTO_ABYTE_SIZE) + file_size);
 
     // Add null byte to end of string
-    mem_file = malloc(encrypted_buffer_size + 1);
+    mem_file = malloc(encrypted_buffer_size);
     memset( mem_file, '\0', encrypted_buffer_size + 1);
 
     fp_s = fopen(source_file, "rb");
@@ -57,8 +57,10 @@ int encrypt(const char *source_file,
         tag = eof ? crypto_secretstream_xchacha20poly1305_TAG_FINAL : 0;
         if (crypto_secretstream_xchacha20poly1305_push(&st, buf_out, &out_len, buf_in, rlen,
                                                    NULL, 0, tag) != 0){
-            printf("Corrupted chunk, exiting.\n");
-            exit(-1);
+            // printf("Corrupted chunk, exiting.\n");
+            // exit(-1);
+            printf("invalid\n");
+            exit(255);
         }
 
         memcpy(&mem_file[file_offset], &buf_out, (size_t) out_len);
@@ -113,27 +115,50 @@ int decrypt(const char *source_file,
     mem_file = malloc(decrypted_buffer_size + 1);
     memset( mem_file, '\0', decrypted_buffer_size + 1);
 
-
+////////////////////////////////////////////////////////////////////////////////////////////////
     fp_s = fopen(source_file, "rb");    
     fread(header, 1, sizeof header, fp_s);
     if (crypto_secretstream_xchacha20poly1305_init_pull(&st, header, key) != 0) {
-        printf("File header error, exiting.\n");
-        exit(-1);
+        // printf("File header error, exiting.\n");
+        // exit(-1);
+        printf("invalid\n");
+        exit(255);
     }
-    
+  
+
+    int i = 0;
+    int tokenLen = 0;
     // Read file, decrypt, add to buffer
     do {
         rlen = fread(buf_in, 1, sizeof buf_in, fp_s);
         eof = feof(fp_s);
         if (crypto_secretstream_xchacha20poly1305_pull(&st, buf_out, &out_len, &tag,
                                                        buf_in, rlen, NULL, 0) != 0) {
-            printf("Corrupted chunk, exiting.\n");
-            exit(-1);
+            // printf("Corrupted chunk, exiting.\n");
+            // exit(-1);
+            printf("invalid\n");
+            exit(255);
         }
+        if(i == 0){
+            tokenLen = deserialize_int(buf_out) - 1;
+            if(tokenLen != strlen(key)){
+                // printf("Incorrect key\n");
+                // exit(-1);
+                printf("invalid\n");
+                exit(255);
+            }
+        }
+        
+        
+
+
+
             
         if (tag == crypto_secretstream_xchacha20poly1305_TAG_FINAL && ! eof) {
-            printf("Premature end. I get that a lot :(\n");
-            exit(-1);
+            // printf("Premature end. I get that a lot :(\n");
+            // exit(-1);
+            printf("invalid\n");
+            exit(255);
         }
 
         memcpy(&mem_file[file_offset], &buf_out, (size_t) out_len);
