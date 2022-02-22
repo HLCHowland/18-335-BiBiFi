@@ -33,7 +33,6 @@ typedef struct _CmdLineResult {
 } CmdLineResult;
 
 
-// TODO: Is the use of strlen to determine token_len/name_len secure?
 CmdLineResult parse_cmdline(int argc, char *argv[], int is_batch) {
   CmdLineResult R = { -1, NULL, 0, false, false, NULL, 0, -1, NULL, 0, NULL};
   int opt = -1;
@@ -42,7 +41,6 @@ CmdLineResult parse_cmdline(int argc, char *argv[], int is_batch) {
   bool nonbatch = false;
 
   //argument data
-  // Record  Rec = {0};
   char    *logpath = NULL;
   char    *batchpath = NULL;
   int     batchpath_len;
@@ -244,26 +242,18 @@ int main(int argc, char *argv[]) {
             memset(command_line, 0, 2100);
             strcpy(command_line, "./logappend ");
             strcat(command_line, batch_line);
-            // printf("batch_line is: %s\n", batch_line);
-            // printf("Executing command: %s\n", command_line);
             system(command_line);
             memset(batch_line, 0, 2048);
         }
         return 0;
     }
 
-    // Non-batched case
-    //print_cmdline(R);
-
     // First step: check if log file exists.
-
     // If log file doesn't exist, create a new file and write token
     if( access( R.logpath, F_OK ) != 0 ){
         // Create new log
-        // printf("Log file doesn't currently exists. Opening new log file.\n");
         log_fp = fopen(R.logpath, "w+");
         // Write token to beginning of file
-        // token_len(int)+token(str)
         char token_len_str[4];
         serialize_int(token_len_str, R.token_len);
         fwrite(token_len_str, 1, 4, log_fp);
@@ -281,14 +271,7 @@ int main(int argc, char *argv[]) {
     buf_r = malloc(4);
     num_read = fread(buf_r, 1, 4, log_fp);
     assert(num_read==4 && "4 bytes expected for token_len");
-    //printf("Printing buf_r, length of %d:\n", 4);
-    //for (i=0; i<4; i++) {
-    //    printf("%d ",buf_r[i]);
-    //}
-    //printf("\n");
     int token_len = deserialize_int(buf_r);
-    //buf_r = realloc(buf_r, token_len);
-    //memset(buf_r, 0, token_len);
     num_read = fread(buf_r, 1, token_len, log_fp);
     assert(num_read==token_len && "num_read not equal to token_len");
     // Compare tokens
@@ -300,7 +283,6 @@ int main(int argc, char *argv[]) {
 
     // Third step: Read through the log, search for relevant key (name+E/G), and get person's current location
 
-    // -2=not in gallery, -1=in gallery, 0-1073741823=in room
     int current_location = -2;
     buf_r = realloc(buf_r, 4);
     num_read = fread(buf_r, 1, 4, log_fp);
@@ -316,10 +298,8 @@ int main(int argc, char *argv[]) {
         assert(num_read==entry_len && "num_read not equal to entry_len");
         LogEntry L;
         buf_to_logentry(&L, buf_r, entry_len);
-        //print_logentry(L);
         // Check match and update person's location
         if ((strcmp(R.name, L.name) == 0) && (R.is_employee == L.is_employee)) {
-            //printf("Found matching record for %s. Updating his location.\n", R.name);
             if (L.is_arrival) {
                 // Arriving in either gallery or room
                 current_location = L.roomID;
@@ -343,7 +323,6 @@ int main(int argc, char *argv[]) {
 
     // Fourth step: check if command line input is valid given person's current location
     // Also check for timestamp validity
-    // printf("%s's current location is: %d\n", R.name, current_location);
     if (R.is_arrival) {
         if (R.roomID==-1 && current_location!=-2) {
             // Person already in gallery entering again
@@ -369,8 +348,7 @@ int main(int argc, char *argv[]) {
         exit(255);
     }
     fclose(log_fp);
-
-  
+    
     log_fp = fopen(R.logpath, "a");
     char *buf;
     int buf_len;
@@ -386,7 +364,6 @@ int main(int argc, char *argv[]) {
     fclose(log_fp);
     free(buf);
     encrypt(R.logpath, R.token);
-    
-        
+            
   return 0;
 }
