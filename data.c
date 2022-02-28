@@ -65,13 +65,7 @@ int get_record(Record *R, Buffer *B) {
 
 int read_records_from_path(char *path, unsigned char *key, Record **outbuf, unsigned int *outnum) {
   *outnum = 0;
-  *outbuf = NULL;
-
-  //read in a file 
-  // Buffer  B = read_from_path(path, key);
-
-  //TODO Code this
-  
+  *outbuf = NULL;  
   return 0;
 }
 
