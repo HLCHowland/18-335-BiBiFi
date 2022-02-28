@@ -1,0 +1,33 @@
+{
+  "breaks": [
+    {
+      "target_team": "HTTP",
+      "type": "correctness",
+      "commands": [
+        {
+          "program": "logappend",
+          "args": ["-B", "batch"]
+        },
+        {
+          "program": "logread",
+          "args": [ "-K", "secret", "-S", "log"]
+        }
+      ],
+      "batch": "LUsgc2VjcmV0IC1UIDEgLUUgVG9tIC1BIGxvZzEAbG9nMgo="
+    },
+    {
+      "target_team": "HTTP",
+      "type": "correctness",
+      "commands": [
+        {
+          "program": "logappend",
+          "args": ["-A", "-K", "secret", "-T", "1", "-G", "GERDA", "log"]
+        },
+        {
+          "program": "logread",
+          "args": [ "-K", "secret", "-S", "log"]
+        }
+      ]
+    }
+  ]
+}
