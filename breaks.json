@@ -28,6 +28,30 @@
           "args": [ "-K", "secret", "-S", "log"]
         }
       ]
+    },
+    {
+      "target_team": "ThunderDucks",
+      "type": "confidentiality",
+      "logfile": "AHNDILYK",
+      "commands": [
+        {
+          "program": "logread",
+          "args": ["-R", "-G", "RICH"],
+          "output": "20,11,14"
+        }
+      ]
+    },
+    {
+      "target_team": "ThunderDucks",
+      "type": "integrity",
+      "commands": [
+        {
+          "program": "logread",
+          "args": ["-R", "-G", "NORDVPN"]
+        }
+      ],
+      "logfile": "KZJZFGXJ",
+      "replacement": "WlVGOU9BUTEKJjE6Ry1OQU4jQUAKJjI6Ry1OQU4jQUAxOQomMzpFLU9CRFVMSUEjQUAKJjQ6Ry1MQU5FI0FACiY1OkctTEFORSNBQDcKJjY6Ry1MQU5FI0xANwomNzpHLUxBTkUjTEAKJjg6RS1PQkRVTElBI0xACiY5OkUtREVMVEEjQUAKJjEwOkUtREVMVEEjQUA5CiYxMTpFLU1BUkNPI0FACiYxMjpHLU5BTiNMQDE4CiYxMzpHLU5BTiNMQAomMTQ6RS1NQVJDTyNBQDE3CiYxNTpFLURFTFRBI0xAOQomMTY6RS1ERUxUQSNBQDYKJjE3OkUtS0FTQU5EUkEjQUAKJjE4OkUtREVMVEEjTEA2CiYxOTpFLURFTFRBI0FAMjAK"
     }
   ]
 }
