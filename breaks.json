@@ -66,6 +66,20 @@
       ]
     },
     {
+      "target_team": "Team35",
+      "type": "crash",
+      "commands": [
+        {
+          "program": "logappend",
+          "args": ["-T","2","-K", "secret","-A", "-G", "Jill", "log1"]
+        },
+        {
+          "program": "logappend",
+          "args": ["-T","4","-K", "secret","-L", "-G", "Jill", "-R","1","log1"]
+        }
+      ]
+    },
+    {
       "target_team": "JAMARS",
       "type": "correctness",
       "commands": [
