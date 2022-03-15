@@ -1,6 +1,16 @@
 {
   "breaks": [
     {
+      "target_team": "ThunderDucks",
+      "type": "crash",
+      "commands": [
+        {
+          "program": "logread",
+          "args": ["-R", "-G", "Rich", "6E29K2LJ", "rompus"]
+        }
+      ]
+    },
+    {
       "target_team": "HTTP",
       "type": "correctness",
       "commands": [
