@@ -42,16 +42,46 @@
       ]
     },
     {
-      "target_team": "ThunderDucks",
-      "type": "integrity",
+      "target_team": "Team35",
+      "type": "correctness",
       "commands": [
         {
+          "program": "logappend",
+          "args": ["-K", "secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret", "-T", "0", "-G", "GERDA", "-A", "log"]
+        },
+        {
           "program": "logread",
-          "args": ["-R", "-G", "NORDVPN"]
+          "args": ["-K", "secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret", "-S", "log"]
         }
-      ],
-      "logfile": "KZJZFGXJ",
-      "replacement": "WlVGOU9BUTEKJjE6Ry1OQU4jQUAKJjI6Ry1OQU4jQUAxOQomMzpFLU9CRFVMSUEjQUAKJjQ6Ry1MQU5FI0FACiY1OkctTEFORSNBQDcKJjY6Ry1MQU5FI0xANwomNzpHLUxBTkUjTEAKJjg6RS1PQkRVTElBI0xACiY5OkUtREVMVEEjQUAKJjEwOkUtREVMVEEjQUA5CiYxMTpFLU1BUkNPI0FACiYxMjpHLU5BTiNMQDE4CiYxMzpHLU5BTiNMQAomMTQ6RS1NQVJDTyNBQDE3CiYxNTpFLURFTFRBI0xAOQomMTY6RS1ERUxUQSNBQDYKJjE3OkUtS0FTQU5EUkEjQUAKJjE4OkUtREVMVEEjTEA2CiYxOTpFLURFTFRBI0FAMjAK"
+      ]
+    },
+    {
+      "target_team": "JAMARS",
+      "type": "correctness",
+      "commands": [
+        {
+          "program": "logappend",
+          "args": ["-A", "-K", "secret", "-T", "1","-T", "2","-G", "GERDA", "log"]
+        },
+        {
+          "program": "logread",
+          "args": [ "-K", "secret", "-S", "log"]
+        }
+      ]
+    },
+    {
+      "target_team": "JAMARS",
+      "type": "correctness",
+      "commands": [
+        {
+          "program": "logappend",
+          "args": ["-A", "-K", "secret", "-T", "1", "-G", "GERDA", "-E", "JILL", "log1"]
+        },
+        {
+          "program": "logread",
+          "args": [ "-K", "secret", "-S", "log1"]
+        }
+      ]
     }
   ]
 }
